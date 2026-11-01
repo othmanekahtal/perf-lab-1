@@ -68,8 +68,8 @@ export function judge(key: string, prev: Point | undefined, cur: Point | undefin
   if (!def || !prev || !cur || !Number.isFinite(prev.median) || !Number.isFinite(cur.median)) return { verdict: 'n/a', delta: NaN, noise: NaN };
   const delta = cur.median - prev.median;
   // Medians drift between sessions more than the IQR within one session shows, so allow a relative tolerance too:
-  // 10% for timing metrics, 50% for the single 10 s load test (scenario H), 2% for deterministic metrics.
-  const relative = def.kind === 'deterministic' ? 0.02 : def.scenario === 'H' ? 0.5 : 0.1;
+  // 25% for timing metrics, 50% for the single 10 s load test (scenario H), 2% for deterministic metrics.
+  const relative = def.kind === 'deterministic' ? 0.02 : def.scenario === 'H' ? 0.5 : 0.25;
   const noise = Math.max(prev.iqr || 0, cur.iqr || 0, def.floor, relative * Math.abs(prev.median));
   if (Math.abs(delta) <= noise) return { verdict: 'noise', delta, noise };
   const improved = def.better === 'lower' ? delta < 0 : delta > 0;

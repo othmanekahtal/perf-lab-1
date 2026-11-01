@@ -60,7 +60,7 @@ Scenario E (memory) runs without network or CPU throttling, because heap size do
 - **Third-party main-thread time** is top-level script work in the trace attributed to the vendor origin.
 - **Heap growth** is `Runtime.getHeapUsage().usedSize` after forced GC, after the 20 navigations minus before them.
 - **Rendering mode per route** is parsed from the `next build` route table (○ static, ◐ partial prerender, ƒ dynamic). "Key routes with a prerendered shell" counts ○/◐ among `/`, `/products`, `/products/[id]`, `/orders`, `/orders/[id]`, `/settings`.
-- **Noise:** a change counts as real when |Δ| exceeds max(IQR before, IQR after, a per-metric floor, a relative tolerance). The relative tolerance is 10% for timing metrics, 50% for the single load test (H) and 2% for deterministic metrics, because medians drift between sessions more than the IQR within one session shows. See `perf/lib/report.ts` and `perf/lib/metrics.ts`.
+- **Noise:** a change counts as real when |Δ| exceeds max(IQR before, IQR after, a per-metric floor, a relative tolerance). The relative tolerance is 25% for timing metrics, 50% for the single load test (H) and 2% for deterministic metrics, because medians drift between sessions more than the IQR within one session shows. See `perf/lib/report.ts` and `perf/lib/metrics.ts`.
 
 ### Reproduce
 

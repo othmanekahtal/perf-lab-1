@@ -1,0 +1,25 @@
+{
+ "date": "2026-11-01T04:19:15.781Z",
+ "runs": 3,
+ "baseline": {
+  "ref": "baseline",
+  "commit": "25a9009",
+  "score": "0 / 50",
+  "gates": {
+   "F": true,
+   "G": true,
+   "E2E": true,
+   "REG": false
+  },
+  "symptomAndMysteryChecks": 40,
+  "passingThatShouldFail": []
+ },
+ "reference": {
+  "ref": "reference-solution",
+  "runs": []
+ },
+ "ok": false,
+ "problems": [
+  "baseline: gate REG fails"
+ ]
+}
