@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { cookies, headers } from 'next/headers';
+import Script from 'next/script';
+import { ChatLauncher } from '@/components/chat-launcher';
 import './globals.css';
 
 const VENDOR_ORIGIN = process.env.NEXT_PUBLIC_VENDOR_ORIGIN ?? 'http://localhost:4002';
@@ -22,11 +24,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={lang} data-theme={theme}>
       <head>
-        {/* PERF-BUG #10: third-party scripts load synchronously in <head> from another origin, with no preconnect; they block parsing/rendering and run heavy work at start-up. Affects S3, S4, S13. */}
-        <script src={`${VENDOR_ORIGIN}/analytics.js`} />
-        <script src={`${VENDOR_ORIGIN}/chat-widget.js`} />
+        <link rel="preconnect" href={VENDOR_ORIGIN} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* HelloDesk renders its launcher here (fixed position, so it never shifts the page). */}
+        <div id="hellodesk-launcher" className="fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-xl shadow-lg empty:hidden sm:left-auto sm:w-96" />
+        <Script src={`${VENDOR_ORIGIN}/analytics.js`} strategy="lazyOnload" />
+        <ChatLauncher />
+      </body>
     </html>
   );
 }
