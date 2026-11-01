@@ -13,7 +13,7 @@ Check IDs refer to `perf-budgets.json`. "Fix family" names the technique, not th
 | 2 | Upstream and DB data uncached | `lib/upstream.ts`, `lib/data.ts`, `components/shell/sidebar.tsx` | S1, S2, S10, S11 | S1.x, S10.x, S11.2, B1, B8 |
 | 3 | Waterfalls, N+1, no dedupe | `lib/dashboard.ts`, `kpi-grid.tsx`, `products/[id]/page.tsx` | S1, S2, S8, S10, S11 | S11.1, S11.3, S8.1, S1.1 |
 | 4 | No streaming | `app/(shop)/page.tsx`, no `loading.tsx` | S2, S3, S8 | S2.1, S2.2, S3.1, S8.2 |
-| 5 | Over-fetching to the client / needless client components | products page, dashboard charts, product view, settings, live widget | S12, S8, S3, S4, S13 | S12.1–S12.3, S8.3, S8.4, S4.1, S13.x |
+| 5 | Over-fetching to the client / needless client components | products page, dashboard charts, product view, settings, live widget | S12, S8, S3, S4, S13 | S12.1–S12.3, S8.3, S4.1, S13.x |
 | 6 | Mutation invalidates everything + refresh hack | `app/actions/orders.ts`, `order-editor.tsx` | S14 | S14.1, S14.2 |
 | 7 | Personal data read deep inside shared components | `lib/dashboard.ts`, `kpi-grid.tsx`, `topbar.tsx` | S1, S2 (blocks caching), isolation gate | G, S1.x |
 | 8 | Proxy without matcher + expensive sync work | `proxy.ts` | S10, S1 | S10.4, S10.x |
@@ -64,7 +64,7 @@ Check IDs refer to `perf-budgets.json`. "Fix family" names the technique, not th
   - The product page is a single client component that receives every review.
   - `/settings` is a client page that fetches `/api/me` in `useEffect`.
   - The charts and the live-visitors widget render nothing until they mount or fetch, which causes the dashboard's layout shifts (S4).
-- **Symptoms / checks:** S12.1–S12.3 (HTML/RSC size), S8.3/S8.4 (RSC per navigation), S3, S13 (hydration cost), S4.1 (pop-in).
+- **Symptoms / checks:** S12.1–S12.3 (HTML/RSC size), S8.3 (RSC per navigation), S3, S13 (hydration cost), S4.1 (pop-in).
 - **Fix family:** keep data work on the server. Search, filter, sort and paginate in SQL (or a cached index) driven by `searchParams`, and send only the 24 rows shown. Aggregate the charts on the server and send a few dozen points. Use server components by default and push `"use client"` down to the leaves (gallery, form, filters). Select only the columns you render. Reserve space for anything that loads later.
 - **Metrics:** HTML KB, RSC KB, TBT, CLS, soft-nav time.
 
@@ -98,9 +98,17 @@ Check IDs refer to `perf-budgets.json`. "Fix family" names the technique, not th
 
 ## #10: Third-party scripts block the page
 
-- **Cause:** `analytics.js` (~390 KB, with ~200–400 ms of fingerprinting at start-up under 4× CPU) and `chat-widget.js` (~180 KB, building an index at start-up) are synchronous `<script>` tags in `<head>`, on another origin, with no preconnect. They block HTML parsing and the first render, then add long tasks. Without its launcher slot, the chat widget inserts a bar at the top of the page, which shifts everything (S4).
+- **Cause:**
+  - `analytics.js` (~380 KB) runs ~220 ms of fingerprinting at start-up (4× CPU), then takes a session-replay DOM snapshot at `load`. The snapshot's cost grows with the size of the DOM.
+  - `chat-widget.js` (~260 KB) builds a phrase index at start-up (~250 ms).
+  - Both are synchronous `<script>` tags in `<head>`, on another origin, with no preconnect. They block HTML parsing and the first render, then add long tasks.
+  - Without its launcher slot, the chat widget inserts a bar at the top of the page, which shifts everything (S4).
 - **Symptoms / checks:** S3.3 (render-blocking bytes), S3.1 LCP, S13.1/S13.2 (TBT / long tasks), S4.1 CLS.
-- **Fix family:** `next/script` with `strategy="afterInteractive"`/`"lazyOnload"` (or a worker), `preconnect` to the vendor origin, and the vendor's embed option (`<div id="hellodesk-launcher">` in a fixed-position slot) so the widget doesn't shift content.
+- **Fix family:**
+  - `next/script` with `strategy="lazyOnload"` (or `afterInteractive`) for analytics, plus `preconnect` to the vendor origin.
+  - A **facade** for the chat widget: a lightweight "Chat with us" button that loads the vendor script only on click, so most visitors never pay its cost.
+  - The vendor's embed option (`<div id="hellodesk-launcher">` in a fixed-position slot), so the widget never shifts content.
+  - A smaller DOM (#5) also makes the analytics snapshot cheap.
 - **Metrics:** render-blocking bytes, FCP/LCP, TBT, CLS, third-party main-thread time.
 
 ## #11: Slow interactions (INP)
@@ -117,7 +125,7 @@ Check IDs refer to `perf-budgets.json`. "Fix family" names the technique, not th
   - `use-equal-heights.ts`: on mount, resize and every scroll event it writes `minHeight`, then reads `offsetTop`/`offsetHeight`, in a loop.
   - `globals.css`: `.live-bar` and `.live-dot` animate `left`/`width`/`top`/`height`, so layout runs every frame, even when idle.
   - The 1,500-row list has no `content-visibility`.
-- **Symptoms / checks:** S6.1 (forced reflows), S6.2 (blocking while scrolling), S6.3 (layouts per second while idle), S6.4 (total layout time).
+- **Symptoms / checks:** S6.1 (forced reflows), S6.2 (script time while scrolling and resizing), S6.3 (layouts per second while idle), S6.4 (total layout time).
 - **Fix family:** batch reads before writes, or use an `IntersectionObserver` / CSS instead of measuring. Use passive listeners. Animate `transform`/`opacity`. Use `content-visibility: auto` with `contain-intrinsic-size`, or paginate/virtualize. Equal-height cards come for free with CSS grid.
 - **Metrics:** forced reflows, scroll blocking, idle layouts, layout time.
 
