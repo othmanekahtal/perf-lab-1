@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
 import { ChatLauncher } from '@/components/chat-launcher';
 import './globals.css';
@@ -17,13 +16,14 @@ export const viewport: Viewport = {
   themeColor: '#6d28d9',
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // PERF-BUG #1: reading cookies()/headers() in the ROOT layout opts every route into dynamic rendering (no static shell, high TTFB everywhere). Affects S1, S2, S10.
-  const theme = (await cookies()).get('theme')?.value === 'dark' ? 'dark' : 'light';
-  const lang = ((await headers()).get('accept-language') ?? 'en').split(',')[0].split('-')[0] || 'en';
+// Applies the saved theme before first paint, without making the layout depend on the request.
+const THEME_SCRIPT = `document.documentElement.dataset.theme=(document.cookie.match(/(?:^|; )theme=(dark|light)/)||[])[1]||'light'`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang} data-theme={theme}>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <link rel="preconnect" href={VENDOR_ORIGIN} />
       </head>
       <body>

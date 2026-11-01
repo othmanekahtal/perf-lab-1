@@ -51,7 +51,7 @@ export default function SettingsPage() {
               role="radio"
               aria-checked={user.theme === t}
               disabled={pending}
-              onClick={() => startTransition(async () => { await setTheme(t); setUser({ ...user, theme: t }); })}
+              onClick={() => startTransition(async () => { await setTheme(t); document.documentElement.dataset.theme = t; setUser({ ...user, theme: t }); })}
               className={`btn-ghost capitalize ${user.theme === t ? 'border-brand-500 text-brand-700' : ''}`}
               data-testid={`theme-${t}`}
             >
