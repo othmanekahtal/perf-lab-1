@@ -1,0 +1,59 @@
+{
+ "date": "2026-11-01T03:21:10.185Z",
+ "runs": 3,
+ "baseline": {
+  "ref": "baseline",
+  "commit": "44f91b8",
+  "score": "0 / 50",
+  "gates": {
+   "F": true,
+   "G": true,
+   "E2E": true,
+   "REG": false
+  },
+  "symptomAndMysteryChecks": 40,
+  "passingThatShouldFail": []
+ },
+ "reference": {
+  "ref": "reference-solution",
+  "runs": [
+   {
+    "commit": "5c78a1f",
+    "score": "50 / 50",
+    "gates": {
+     "F": true,
+     "G": true,
+     "E2E": true,
+     "REG": true
+    },
+    "failing": []
+   },
+   {
+    "commit": "5c78a1f+dirty",
+    "score": "50 / 50",
+    "gates": {
+     "F": true,
+     "G": true,
+     "E2E": true,
+     "REG": true
+    },
+    "failing": []
+   },
+   {
+    "commit": "5c78a1f+dirty",
+    "score": "50 / 50",
+    "gates": {
+     "F": true,
+     "G": true,
+     "E2E": true,
+     "REG": true
+    },
+    "failing": []
+   }
+  ]
+ },
+ "ok": false,
+ "problems": [
+  "baseline: gate REG fails"
+ ]
+}

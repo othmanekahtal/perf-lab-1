@@ -1,7 +1,7 @@
 // Proves the validator works in both directions:
 //   - the baseline fails every symptom (S*) and mystery (M*) check, while the correctness gates pass;
 //   - the reference solution passes every check, in N consecutive full runs.
-// pnpm validate:self-test [-- --runs 3] [--baseline baseline] [--reference reference-solution]
+// pnpm validate:self-test [-- --runs 3] [--baseline baseline] [--reference reference-solution] [--only baseline|reference]
 import { execSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,6 +15,7 @@ const value = (n: string) => { const i = args.indexOf(`--${n}`); return i >= 0 ?
 const runs = Number(value('runs') ?? 3);
 const baselineRef = value('baseline') ?? 'baseline';
 const referenceRef = value('reference') ?? 'reference-solution';
+const only = value('only'); // 'baseline' or 'reference'
 const WORK = join(ROOT, '.perf-tmp', 'self-test');
 
 function checkout(ref: string) {
@@ -40,17 +41,23 @@ const report: Record<string, unknown> = { date: new Date().toISOString(), runs }
 const problems: string[] = [];
 
 // Baseline: every S*/M* check must fail, every gate must pass.
-const baseDir = checkout(baselineRef);
-const base = validate(baseDir, `baseline (${baselineRef})`);
+const dirs: string[] = [];
+let base: Validation = { score: '–', commit: '–', gates: {}, outcomes: [] };
+if (only !== 'reference') {
+  const baseDir = checkout(baselineRef);
+  dirs.push(baseDir);
+  base = validate(baseDir, `baseline (${baselineRef})`);
+}
 const shouldFail = base.outcomes.filter((o) => /^(S|M)\d/.test(o.symptom));
 for (const o of shouldFail) if (o.pass) problems.push(`baseline: ${o.id} passes (measured ${o.measured}, threshold ${o.threshold})`);
 for (const [g, ok] of Object.entries(base.gates)) if (!ok) problems.push(`baseline: gate ${g} fails`);
 report.baseline = { ref: baselineRef, commit: base.commit, score: base.score, gates: base.gates, symptomAndMysteryChecks: shouldFail.length, passingThatShouldFail: shouldFail.filter((o) => o.pass).map((o) => o.id) };
 
 // Reference: everything passes, N times in a row.
-const refDir = checkout(referenceRef);
 const refRuns = [];
-for (let i = 1; i <= runs; i++) {
+const refDir = only === 'baseline' ? '' : checkout(referenceRef);
+if (refDir) dirs.push(refDir);
+for (let i = 1; refDir && i <= runs; i++) {
   const v = validate(refDir, `reference (${referenceRef}) run ${i}/${runs}`);
   const failing = v.outcomes.filter((o) => !o.pass);
   for (const o of failing) problems.push(`reference run ${i}: ${o.id} fails (measured ${o.measured}, threshold ${o.threshold}${o.note ? `, ${o.note}` : ''})`);
@@ -63,7 +70,7 @@ report.problems = problems;
 mkdirSync(join(ROOT, 'validation-results'), { recursive: true });
 const out = join(ROOT, 'validation-results', `self-test-${report.date as string}.json`.replace(/[:]/g, '-'));
 writeFileSync(out, JSON.stringify(report, null, 1));
-for (const dir of [baseDir, refDir]) execSync(`git worktree remove --force "${dir}"`, { cwd: ROOT, stdio: 'ignore' });
+for (const dir of dirs) execSync(`git worktree remove --force "${dir}"`, { cwd: ROOT, stdio: 'ignore' });
 rmSync(WORK, { recursive: true, force: true });
 
 console.log('\n=== Validator self-test ===');
