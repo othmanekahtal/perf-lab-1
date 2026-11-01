@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 /** Keeps cards in the same row at the same height. */
 export function useEqualHeights(selector: string) {
   useEffect(() => {
+    // PERF-BUG #12: write (minHeight) then read (offsetTop/offsetHeight) in a loop, on every resize and scroll; listeners never removed (#13). Affects S6, S9.
     const equalize = () => {
       const cards = Array.from(document.querySelectorAll<HTMLElement>(selector));
       for (const card of cards) {

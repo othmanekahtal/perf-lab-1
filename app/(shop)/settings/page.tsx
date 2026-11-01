@@ -10,6 +10,7 @@ const NOTIFICATIONS = [
   { id: 'reviews', label: 'New reviews', hint: 'Daily digest of 1–2 star reviews' },
 ];
 
+// PERF-BUG #5: a whole page made a client component that fetches its data in useEffect (client waterfall) although it could render on the server. Affects S1, S12.
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [prefs, setPrefs] = useState<Record<string, boolean>>({ orders: true, stock: true, reviews: false });

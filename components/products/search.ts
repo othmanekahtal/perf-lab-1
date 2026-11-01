@@ -43,6 +43,7 @@ export function effectivePrice(p: Product) {
   return p.price_cents + (bulky ? 499 : 0) - (tags.includes('value') ? 100 : 0);
 }
 
+// PERF-BUG #11: comparator creates a new Intl.Collator and JSON.parses specs on every comparison (n log n times). Affects S5.
 export function sortProducts(list: (Product & { score: number })[], sort: SortKey) {
   return [...list].sort((a, b) => {
     switch (sort) {

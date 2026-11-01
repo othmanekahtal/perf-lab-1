@@ -16,6 +16,7 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
   useEffect(() => {
     const onResize = () => setDensity(Math.max(1, Math.round(orders.length / window.innerWidth / 10)));
     onResize();
+    // PERF-BUG #13: listener never removed, its closure keeps `orders` (8,400 rows) alive after every visit. Affects S9.
     window.addEventListener('resize', onResize);
   }, [orders]);
   useEqualHeights('.kpi-card, .chart-card');
@@ -42,6 +43,7 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
     return Object.entries(counts).map(([status, items]) => ({ status, items }));
   }, [orders]);
 
+  // PERF-BUG #5: charts render only on the client after mount (no reserved space), and aggregate thousands of raw rows in the browser. Affects S4, S13.
   if (!mounted) return null;
 
   return (

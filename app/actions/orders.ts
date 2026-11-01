@@ -28,6 +28,7 @@ export async function updateOrder(_prev: SaveState, formData: FormData): Promise
   const total = kept.reduce((sum, i) => sum + i.qty * i.unitPriceCents, 0);
 
   saveOrder(id, { status, shipping_address: shipping, notes, items: JSON.stringify(kept), total_cents: total });
+  // PERF-BUG #6: invalidates every route under the root layout instead of the data that changed (cacheTag + updateTag). Affects S14.
   revalidatePath('/', 'layout');
   return { ok: true, savedAt: new Date().toISOString() };
 }

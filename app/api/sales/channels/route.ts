@@ -6,5 +6,6 @@ export async function GET() {
   const channels = db()
     .prepare(`SELECT channel, SUM(total_cents) AS revenueCents FROM orders WHERE created_at >= ? AND status NOT IN ('cancelled','refunded') GROUP BY channel ORDER BY revenueCents DESC`)
     .all(since);
+  // PERF-BUG #9: no-store on data that changes rarely. Affects S7.
   return Response.json({ channels }, { headers: { 'Cache-Control': 'no-store' } });
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+// PERF-BUG #13: unbounded module-level history. Affects S9.
 const samples: { at: number; visitors: number; pages: string[] }[] = [];
 
 export function LiveVisitors() {
@@ -14,9 +15,11 @@ export function LiveVisitors() {
       setVisitors(data.visitors);
     };
     poll();
+    // PERF-BUG #13: interval and focus listener are never cleared; every dashboard visit adds another poller. Affects S9 (and S10).
     setInterval(poll, 2000);
     window.addEventListener('focus', poll);
   }, []);
+  // PERF-BUG #5: renders nothing until the first client fetch resolves, then pushes the page down. Affects S4.
   if (visitors === null) return null;
   return (
     <div className="panel flex items-center gap-3 px-3 py-2" data-testid="live-visitors">

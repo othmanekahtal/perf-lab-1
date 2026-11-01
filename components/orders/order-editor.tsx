@@ -16,6 +16,7 @@ export function OrderEditor({ order, items, products }: Props) {
   const total = items.reduce((sum, item, i) => sum + item.unitPriceCents * (qty[i] ?? 0), 0);
 
   useEffect(() => {
+    // PERF-BUG #6: refresh hack, re-renders the whole current route after every save. Affects S14.
     if (state.ok) router.refresh();
   }, [state, router]);
 

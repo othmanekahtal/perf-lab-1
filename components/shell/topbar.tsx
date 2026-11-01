@@ -2,6 +2,7 @@ import { logout } from '@/app/actions/auth';
 import { requireUser } from '@/lib/session';
 
 export async function Topbar() {
+  // PERF-BUG #7: personal data (name/role) read in the shared shell. Affects S1.
   const user = await requireUser();
   return (
     <header className="flex items-center gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur lg:px-8 dark:border-slate-800 dark:bg-slate-900/80">

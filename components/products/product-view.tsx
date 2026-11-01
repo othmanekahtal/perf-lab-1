@@ -29,6 +29,7 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
       </nav>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3" data-testid="product-gallery">
+          {/* PERF-BUG #9: unoptimized hero (and lazy by default, although it is the LCP). Affects S3. */}
           <Image src={productImage(active)} alt={product.name} width={1600} height={1600} unoptimized className="aspect-square w-full rounded-xl object-cover" data-testid="product-hero" />
           <div className="grid grid-cols-4 gap-2">
             {images.map((img) => (

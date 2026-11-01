@@ -10,6 +10,7 @@ import { getDashboardData } from '@/lib/dashboard';
 export const metadata: Metadata = { title: 'Dashboard' };
 
 export default async function DashboardPage() {
+  // PERF-BUG #4: no Suspense boundaries / loading.tsx, so the page renders only after every widget's data is ready. Affects S2, S3, S8.
   const data = await getDashboardData();
   const hour = 9;
   return (

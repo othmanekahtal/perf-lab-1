@@ -11,6 +11,7 @@ const PAGE_SIZE = 24;
 const CATEGORIES = ['Audio', 'Cameras', 'Computers', 'Gaming', 'Home', 'Kitchen', 'Outdoor', 'Phones', 'Smart Home', 'Sports', 'Wearables', 'Office'];
 
 // Remembers previous result sets so going back to the list is instant.
+// PERF-BUG #13: module-level array that is never trimmed and retains every products array ever received. Affects S9.
 const visited: { at: number; products: Product[]; results: Product[] }[] = [];
 
 type Filters = { query: string; categories: string[]; brand: string; inStock: boolean; sort: SortKey };
@@ -38,6 +39,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
     visited.push({ at: Date.now(), products, results });
   }, [products, results]);
 
+  // PERF-BUG #11: the handler recomputes fuzzy relevance for 5,000 products and re-sorts synchronously; one keystroke = one long task. Fix family: yield to the main thread (scheduler.yield/chunking/transitions). Affects S5.
   const update = (patch: Partial<Filters>) => {
     const next = { ...filters, ...patch };
     setFilters(next);
@@ -110,6 +112,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
         {visible.map((p) => (
           <li key={p.id} className="panel overflow-hidden" data-testid="product-card" data-product-id={p.id}>
             <Link href={`/products/${p.id}`} className="block">
+              {/* PERF-BUG #9: `unoptimized` 1600 px originals in a small grid. Affects S3, S7. */}
               <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
               <div className="space-y-1 p-3">
                 <div className="muted text-xs">{p.brand} · {p.category}</div>

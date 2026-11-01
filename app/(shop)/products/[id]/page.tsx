@@ -16,13 +16,16 @@ export default async function ProductPage({ params }: Props) {
   const product = getProduct(id);
   if (!product) notFound();
 
+  // PERF-BUG #3: sequential independent awaits (pricing, inventory). Affects S8, S1.
   const pricing = await getPricing(product.id);
   const inventory = await getInventory(product.id);
   const reviews = getReviews(product.id);
   const related = [];
+  // PERF-BUG #3: N+1 sequential pricing calls for related products. Affects S8, S11.
   for (const p of getRelatedProducts(product, 8)) {
     related.push({ ...p, pricing: await getPricing(p.id) });
   }
 
+  // PERF-BUG #5: the whole page is a client component receiving every review (full rows); only the gallery needs to be interactive. Affects S8, S12.
   return <ProductView product={product} pricing={pricing} inventory={inventory} reviews={reviews} related={related} />;
 }

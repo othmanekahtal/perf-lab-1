@@ -3,6 +3,7 @@ import { getLowStock } from '@/lib/upstream';
 import { NavLinks } from './nav-links';
 
 export async function Sidebar() {
+  // PERF-BUG #2: an uncached upstream call in the layout, on every navigation. Affects S1, S11.
   const lowStock = await getLowStock();
   return (
     <aside className="border-b border-slate-200 bg-white lg:sticky lg:top-0 lg:h-dvh lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0 dark:border-slate-800 dark:bg-slate-900">

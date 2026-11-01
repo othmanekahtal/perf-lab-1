@@ -5,6 +5,7 @@ import { getAllProducts } from '@/lib/data';
 export const metadata: Metadata = { title: 'Products' };
 
 export default async function ProductsPage() {
+  // PERF-BUG #5: all 5,000 products with every column (descriptions, specs, SEO…) are serialised into the RSC payload for a page that shows 24. Affects S12, S8, S3, S13.
   const products = getAllProducts();
   return (
     <div className="space-y-4">

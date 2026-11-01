@@ -11,6 +11,7 @@ export function ActivityFeed({ items }: { items: Item[] }) {
   const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // PERF-BUG #12: interleaves layout reads (getBoundingClientRect) and writes (style.paddingLeft) per row: one forced reflow per row per scroll event. Affects S6.
     const onScroll = () => {
       const list = listRef.current;
       if (!list) return;
@@ -24,6 +25,7 @@ export function ActivityFeed({ items }: { items: Item[] }) {
       });
       if (progressRef.current) progressRef.current.style.width = `${(seen / rows.length) * 100}%`;
     };
+    // PERF-BUG #12: non-passive scroll/wheel/touch listeners. Affects S6.
     window.addEventListener('scroll', onScroll, { passive: false });
     window.addEventListener('wheel', onScroll, { passive: false });
     window.addEventListener('touchmove', onScroll, { passive: false });
@@ -45,6 +47,7 @@ export function ActivityFeed({ items }: { items: Item[] }) {
       <div className="mb-3 h-1 overflow-hidden rounded bg-slate-100 dark:bg-slate-800">
         <div ref={progressRef} className="h-1 bg-brand-500" style={{ width: 0 }} />
       </div>
+      {/* PERF-BUG #12: 1,500 off-screen rows laid out and painted, no content-visibility. Affects S6. */}
       <ol ref={listRef} className="space-y-1 text-sm">
         {items.map((item) => {
           const day = item.created_at.slice(0, 10);

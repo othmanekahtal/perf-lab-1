@@ -5,6 +5,7 @@ import type { Campaign, Forecast, FxRates, Inventory, Pricing, Recommendations }
 const BASE = process.env.UPSTREAM_URL ?? 'http://localhost:4001';
 const agent = new http.Agent({ keepAlive: true, maxSockets: 64 });
 
+// PERF-BUG #2: every upstream call goes over the network on every request; nothing is cached (no "use cache"/cacheLife/cacheTag) and nothing is deduplicated. Affects S1, S2, S10, S11.
 /** Small JSON client for the commerce platform API (keep-alive agent, 10s timeout, one retry on a reset connection). */
 export async function upstream<T>(path: string): Promise<T> {
   try {

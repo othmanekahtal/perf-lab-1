@@ -11,6 +11,7 @@ export function Recommended({ products, user }: { products: (Product & { pricing
         {products.map((p) => (
           <li key={p.id} data-testid="recommended-item" data-product-id={p.id}>
             <Link href={`/products/${p.id}`} className="block">
+              {/* PERF-BUG #9: `unoptimized` serves the 1600×1600 originals (~800 KB) to 150 px slots. Affects S3, S7, S12. */}
               <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full rounded-lg object-cover" />
               <div className="mt-1 line-clamp-1 text-xs font-medium">{p.name}</div>
               <div className="text-xs">

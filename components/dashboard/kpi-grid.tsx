@@ -6,6 +6,7 @@ import { getFxRates } from '@/lib/upstream';
 type Card = { id: string; label: string; icon: string; valueCents?: number; value?: string; prev?: number; cur?: number; restricted?: boolean };
 
 export async function KpiGrid({ kpis }: { kpis: Kpis }) {
+  // PERF-BUG #7: permissions (personal) are read inside a component that renders shared KPI data. Affects caching; a naive cache leaks one user's view to another (isolation gate).
   const user = await requireUser();
   const cards: Card[] = [
     { id: 'revenue', label: 'Revenue', icon: 'mdi-cash-multiple', valueCents: kpis.revenueCents, cur: kpis.revenueCents, prev: kpis.revenuePrevCents, restricted: !user.permissions.revenue },
@@ -23,6 +24,7 @@ export async function KpiGrid({ kpis }: { kpis: Kpis }) {
 }
 
 async function KpiCard({ card }: { card: Card }) {
+  // PERF-BUG #3: no request deduplication, each card fetches the same FX rates again (4 extra calls per view). Affects S11.
   const fx = await getFxRates();
   const delta = card.cur !== undefined && card.prev ? (card.cur - card.prev) / card.prev : null;
   return (
