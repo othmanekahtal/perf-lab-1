@@ -4,8 +4,8 @@ import { Icon } from '@/components/icon';
 import { PAGE_SIZE, searchCatalog, type CatalogQuery } from '@/lib/catalog';
 import { money, productImage } from '@/lib/format';
 
-export function ProductResults({ query, href }: { query: CatalogQuery; href: (page: number) => string }) {
-  const { total, page, pages, items } = searchCatalog(query);
+export async function ProductResults({ query, href }: { query: CatalogQuery; href: (page: number) => string }) {
+  const { total, page, pages, items } = await searchCatalog(query);
   return (
     <>
       <p className="muted text-sm" data-testid="result-count">{total.toLocaleString('en-IE')} results</p>

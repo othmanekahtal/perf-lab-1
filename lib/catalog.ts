@@ -1,4 +1,5 @@
 import 'server-only';
+import { cacheLife, cacheTag } from 'next/cache';
 import { db } from './db';
 import { buildIndex, relevance, sortIndexed, tokens, type Indexed, type SortKey } from './search';
 import type { Product } from './types';
@@ -18,11 +19,18 @@ function catalogIndex() {
   return index;
 }
 
-export function catalogBrands() {
+export async function catalogBrands() {
+  'use cache';
+  cacheLife('days');
+  cacheTag('products');
   return [...new Set(catalogIndex().map((i) => i.product.brand))].sort();
 }
 
-export function searchCatalog(query: CatalogQuery) {
+/** Cached per query: popular filters and pages are served from memory. */
+export async function searchCatalog(query: CatalogQuery) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('products');
   const terms = tokens(query.q);
   const scored: (Indexed & { score: number })[] = [];
   for (const item of catalogIndex()) {

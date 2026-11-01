@@ -1,4 +1,5 @@
 import 'server-only';
+import { cacheLife, cacheTag } from 'next/cache';
 import { db } from './db';
 import { STORE_TODAY } from './format';
 import type { Order, OrderStatus, Product, Review } from './types';
@@ -10,6 +11,14 @@ const one = <T>(row: unknown) => (row ? ({ ...(row as object) } as T) : null);
 const DAY = 86_400_000;
 const daysAgo = (n: number) => new Date(Date.parse(STORE_TODAY) - n * DAY).toISOString();
 
+// Cache tags: anything derived from orders is tagged "orders" and refreshed by the order editor (updateTag).
+export const TAGS = {
+  orders: 'orders',
+  order: (id: number) => `order:${id}`,
+  products: 'products',
+  reviews: (productId: number) => `reviews:${productId}`,
+};
+
 export type Kpis = {
   revenueCents: number;
   revenuePrevCents: number;
@@ -19,8 +28,10 @@ export type Kpis = {
   refundRate: number;
 };
 
-// PERF-BUG #2: database reads run uncached on every request (KPIs aggregate tens of thousands of rows each time). Affects S1, S10.
-export function getKpis(): Kpis {
+export async function getKpis(): Promise<Kpis> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.orders);
   const q = db().prepare(`
     SELECT COUNT(*) AS orders,
            COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN total_cents END), 0) AS revenue,
@@ -45,7 +56,10 @@ export type ChartAggregates = {
 };
 
 /** Everything the dashboard charts need, aggregated in SQL (a few dozen numbers instead of thousands of rows). */
-export function getChartAggregates(days: number): ChartAggregates {
+export async function getChartAggregates(days: number): Promise<ChartAggregates> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.orders);
   const since = daysAgo(days);
   return {
     revenueByDay: plain(db().prepare(`SELECT substr(created_at, 1, 10) AS day, SUM(total_cents) AS revenueCents FROM orders WHERE created_at >= ? AND status NOT IN ('cancelled','refunded') GROUP BY day ORDER BY day`).all(since)),
@@ -54,47 +68,56 @@ export function getChartAggregates(days: number): ChartAggregates {
   };
 }
 
-/** Orders placed in the last `days` days, newest first. */
-export function getOrdersSince(days: number): Order[] {
-  return plain<Order>(db().prepare('SELECT * FROM orders WHERE created_at >= ? ORDER BY created_at DESC').all(daysAgo(days)));
-}
-
-export function getRecentOrders(limit: number): Order[] {
+export async function getRecentOrders(limit: number): Promise<Order[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.orders);
   return plain<Order>(db().prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT ?').all(limit));
 }
 
-export function getAllProducts(): Product[] {
-  return plain<Product>(db().prepare('SELECT * FROM products ORDER BY id').all());
-}
-
-export function getProduct(id: number): Product | null {
+export async function getProduct(id: number): Promise<Product | null> {
+  'use cache';
+  cacheLife('days');
+  cacheTag(TAGS.products);
   return one<Product>(db().prepare('SELECT * FROM products WHERE id = ?').get(id));
 }
 
-export function getProductsByIds(ids: number[]): Product[] {
+export async function getProductsByIds(ids: number[]): Promise<Product[]> {
+  'use cache';
+  cacheLife('days');
+  cacheTag(TAGS.products);
   if (!ids.length) return [];
   const rows = plain<Product>(db().prepare(`SELECT * FROM products WHERE id IN (${ids.map(() => '?').join(',')})`).all(...ids));
   return ids.map((id) => rows.find((r) => r.id === id)).filter((p): p is Product => Boolean(p));
 }
-export function getReviews(productId: number, limit = 1000): Review[] {
+
+export async function getReviews(productId: number, limit = 1000): Promise<Review[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.reviews(productId));
   return plain<Review>(db().prepare('SELECT * FROM reviews WHERE product_id = ? ORDER BY created_at DESC LIMIT ?').all(productId, limit));
 }
 
-export function getRatingHistogram(productId: number) {
+export async function getRatingHistogram(productId: number) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.reviews(productId));
   const rows = plain<{ rating: number; n: number }>(db().prepare('SELECT rating, COUNT(*) AS n FROM reviews WHERE product_id = ? GROUP BY rating').all(productId));
   return [5, 4, 3, 2, 1].map((stars) => ({ stars, count: rows.find((r) => r.rating === stars)?.n ?? 0 }));
 }
 
-export function getRelatedProducts(product: Product, limit: number): Product[] {
-  return plain<Product>(
-    db().prepare('SELECT * FROM products WHERE category = ? AND id != ? ORDER BY rating DESC, id LIMIT ?').all(product.category, product.id, limit),
-  );
+export async function getRelatedProducts(category: string, excludeId: number, limit: number): Promise<Product[]> {
+  'use cache';
+  cacheLife('days');
+  cacheTag(TAGS.products);
+  return plain<Product>(db().prepare('SELECT * FROM products WHERE category = ? AND id != ? ORDER BY rating DESC, id LIMIT ?').all(category, excludeId, limit));
 }
 
 export type OrderListRow = Order & { customer_orders: number; customer_lifetime_cents: number };
 
 export const ORDERS_PAGE_SIZE = 25;
 
+/** Uncached on purpose: one entry per filter/search/page combination would rarely be reused. Call from a dynamic scope. */
 export function listOrders(opts: { status?: OrderStatus; q?: string; page: number }) {
   const where: string[] = [];
   const args: (string | number)[] = [];
@@ -119,6 +142,7 @@ export function listOrders(opts: { status?: OrderStatus; q?: string; page: numbe
   return { total, pages: Math.max(1, Math.ceil(total / ORDERS_PAGE_SIZE)), rows: withCustomer };
 }
 
+/** Uncached: the editor must always show the latest saved values. */
 export function getOrder(id: number): Order | null {
   return one<Order>(db().prepare('SELECT * FROM orders WHERE id = ?').get(id));
 }
@@ -129,7 +153,10 @@ export function saveOrder(id: number, patch: { status: OrderStatus; shipping_add
     .run(patch.status, patch.shipping_address, patch.notes, patch.items, patch.total_cents, new Date().toISOString(), id);
 }
 
-export function getActivity(limit: number) {
+export async function getActivity(limit: number) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(TAGS.orders);
   return plain<Pick<Order, 'id' | 'number' | 'customer_name' | 'status' | 'total_cents' | 'channel' | 'created_at'>>(
     db().prepare('SELECT id, number, customer_name, status, total_cents, channel, created_at FROM orders ORDER BY created_at DESC LIMIT ?').all(limit),
   );

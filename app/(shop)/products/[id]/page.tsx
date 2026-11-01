@@ -10,12 +10,20 @@ import { getProduct } from '@/lib/data';
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = getProduct(Number((await params).id));
+  const product = await getProduct(Number((await params).id));
   return { title: product?.name ?? 'Product' };
 }
 
-export default async function ProductPage({ params }: Props) {
-  const product = getProduct(Number((await params).id));
+export default function ProductPage({ params }: Props) {
+  return (
+    <Suspense fallback={<SectionSkeleton height={720} />}>
+      <ProductDetail params={params} />
+    </Suspense>
+  );
+}
+
+async function ProductDetail({ params }: Props) {
+  const product = await getProduct(Number((await params).id));
   if (!product) notFound();
   const specs = Object.entries(JSON.parse(product.specs) as Record<string, string>);
 

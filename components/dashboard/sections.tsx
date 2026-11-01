@@ -18,7 +18,7 @@ export async function Greeting() {
 
 export async function KpiSection() {
   const user = await requireUser();
-  return <KpiGrid kpis={getKpis()} canSeeRevenue={user.permissions.revenue} />;
+  return <KpiGrid kpis={await getKpis()} canSeeRevenue={user.permissions.revenue} />;
 }
 
 export async function ChartsSection() {
@@ -41,5 +41,5 @@ export async function RecommendedSection() {
 }
 
 export async function ActivitySection() {
-  return <ActivityFeed items={getActivity(100)} />;
+  return <ActivityFeed items={await getActivity(100)} />;
 }

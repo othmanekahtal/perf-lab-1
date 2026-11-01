@@ -11,12 +11,17 @@ const LINKS: { href: string; label: string; icon: IconName; testid: string }[] =
   { href: '/settings', label: 'Settings', icon: 'cog-outline', testid: 'nav-settings' },
 ];
 
+/** Highlights the current section; the pathname is request data, so this streams in. */
 export function NavLinks({ lowStock }: { lowStock: number }) {
-  const pathname = usePathname();
+  return <NavList lowStock={lowStock} pathname={usePathname()} />;
+}
+
+/** The same links without an active state, used as the prerendered fallback. */
+export function NavList({ lowStock, pathname }: { lowStock: number; pathname: string | null }) {
   return (
     <nav className="flex gap-1 overflow-x-auto px-2 pb-2 lg:flex-col lg:px-3">
       {LINKS.map((l) => {
-        const active = l.href === '/' ? pathname === '/' : pathname.startsWith(l.href);
+        const active = pathname !== null && (l.href === '/' ? pathname === '/' : pathname.startsWith(l.href));
         return (
           <Link
             key={l.href}

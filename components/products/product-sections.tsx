@@ -46,9 +46,8 @@ function ReviewCard({ r }: { r: Review }) {
 }
 
 export async function ProductReviews({ product }: { product: Product }) {
-  const histogram = getRatingHistogram(product.id);
+  const [histogram, reviews] = await Promise.all([getRatingHistogram(product.id), getReviews(product.id)]);
   const total = histogram.reduce((s, h) => s + h.count, 0);
-  const reviews = getReviews(product.id);
   return (
     <section className="grid gap-6 lg:grid-cols-3" data-testid="reviews">
       <div className="panel p-4">
@@ -77,7 +76,7 @@ export async function ProductReviews({ product }: { product: Product }) {
 }
 
 export async function RelatedProducts({ product }: { product: Product }) {
-  const related = getRelatedProducts(product, 8);
+  const related = await getRelatedProducts(product.category, product.id, 8);
   const pricing = await getPricingBatch(related.map((p) => p.id));
   return (
     <section data-testid="related">

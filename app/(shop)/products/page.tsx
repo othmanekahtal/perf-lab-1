@@ -16,13 +16,17 @@ export default function ProductsPage({ searchParams }: Props) {
         <p className="muted text-sm">5,000 products in the catalogue</p>
       </div>
       <Suspense fallback={<ProductFiltersSkeleton />}>
-        <ProductFilters brands={catalogBrands()} />
+        <Filters />
       </Suspense>
       <Suspense fallback={<ProductResultsSkeleton />}>
         <Results searchParams={searchParams} />
       </Suspense>
     </div>
   );
+}
+
+async function Filters() {
+  return <ProductFilters brands={await catalogBrands()} />;
 }
 
 async function Results({ searchParams }: Props) {

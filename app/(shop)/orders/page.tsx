@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { StatusBadge } from '@/components/status-badge';
 import { listOrders } from '@/lib/data';
 import { dateTime, money } from '@/lib/format';
@@ -9,7 +10,24 @@ export const metadata: Metadata = { title: 'Orders' };
 
 type Props = { searchParams: Promise<{ status?: string; q?: string; page?: string }> };
 
-export default async function OrdersPage({ searchParams }: Props) {
+export default function OrdersPage({ searchParams }: Props) {
+  return (
+    <Suspense fallback={<OrdersSkeleton />}>
+      <Orders searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+function OrdersSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="h-8 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="panel h-[600px] animate-pulse" />
+    </div>
+  );
+}
+
+async function Orders({ searchParams }: Props) {
   const sp = await searchParams;
   const status = ORDER_STATUSES.includes(sp.status as OrderStatus) ? (sp.status as OrderStatus) : undefined;
   const q = sp.q?.trim() || undefined;
