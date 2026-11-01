@@ -16,7 +16,8 @@ export async function Greeting() {
 }
 
 export async function KpiSection() {
-  return <KpiGrid kpis={getKpis()} />;
+  const user = await requireUser();
+  return <KpiGrid kpis={getKpis()} canSeeRevenue={user.permissions.revenue} />;
 }
 
 export async function ChartsSection() {

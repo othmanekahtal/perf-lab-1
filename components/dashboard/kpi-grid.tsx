@@ -1,18 +1,16 @@
 import type { Kpis } from '@/lib/data';
 import { money } from '@/lib/format';
-import { requireUser } from '@/lib/session';
 import { getFxRates } from '@/lib/upstream';
 import { Icon, type IconName } from '@/components/icon';
 
 type Card = { id: string; label: string; icon: IconName; valueCents?: number; value?: string; prev?: number; cur?: number; restricted?: boolean };
 
-export async function KpiGrid({ kpis }: { kpis: Kpis }) {
-  // PERF-BUG #7: permissions (personal) are read inside a component that renders shared KPI data. Affects caching; a naive cache leaks one user's view to another (isolation gate).
-  const user = await requireUser();
+/** Shared KPI view; the only personal input is whether revenue may be shown. */
+export async function KpiGrid({ kpis, canSeeRevenue }: { kpis: Kpis; canSeeRevenue: boolean }) {
   const cards: Card[] = [
-    { id: 'revenue', label: 'Revenue', icon: 'cash-multiple', valueCents: kpis.revenueCents, cur: kpis.revenueCents, prev: kpis.revenuePrevCents, restricted: !user.permissions.revenue },
+    { id: 'revenue', label: 'Revenue', icon: 'cash-multiple', valueCents: kpis.revenueCents, cur: kpis.revenueCents, prev: kpis.revenuePrevCents, restricted: !canSeeRevenue },
     { id: 'orders', label: 'Orders', icon: 'cart-outline', value: kpis.orders.toLocaleString('en-IE'), cur: kpis.orders, prev: kpis.ordersPrev },
-    { id: 'aov', label: 'Avg. order value', icon: 'scale-balance', valueCents: kpis.aovCents, restricted: !user.permissions.revenue },
+    { id: 'aov', label: 'Avg. order value', icon: 'scale-balance', valueCents: kpis.aovCents, restricted: !canSeeRevenue },
     { id: 'refunds', label: 'Refund rate', icon: 'cash-refund', value: `${(kpis.refundRate * 100).toFixed(1)}%` },
   ];
   return (

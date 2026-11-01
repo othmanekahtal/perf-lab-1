@@ -1,5 +1,6 @@
 import 'server-only';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import { db } from './db';
 import type { User } from './types';
 
@@ -26,11 +27,11 @@ export function findUser(username: string): User | null {
   return row ? { ...row, permissions: JSON.parse(row.permissions) } : null;
 }
 
-/** The signed-in user, or null. */
-export async function getCurrentUser(): Promise<User | null> {
+/** The signed-in user, or null. Read once per request, however many boundaries ask. */
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const username = decodeSession((await cookies()).get(SESSION_COOKIE)?.value);
   return username ? findUser(username) : null;
-}
+});
 
 export async function requireUser(): Promise<User> {
   const user = await getCurrentUser();
