@@ -1,7 +1,8 @@
 import { getActivity, getChartsData, getKpis, getRecentOrdersWithStock, getRecommendedProducts } from '@/lib/dashboard';
 import { requireUser } from '@/lib/session';
 import { ActivityFeed } from './activity-feed';
-import { DashboardCharts } from './charts';
+import { CampaignList } from './campaigns';
+import { LazyCharts } from './charts-lazy';
 import { KpiGrid } from './kpi-grid';
 import { RecentOrders } from './recent-orders';
 import { Recommended } from './recommended';
@@ -22,7 +23,12 @@ export async function KpiSection() {
 
 export async function ChartsSection() {
   const data = await getChartsData();
-  return <DashboardCharts orders={data.orders} forecast={data.forecast} campaigns={data.campaigns} />;
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3" data-testid="charts">
+      <LazyCharts {...data} />
+      <CampaignList campaigns={data.campaigns} />
+    </div>
+  );
 }
 
 export async function RecentOrdersSection() {
@@ -35,5 +41,5 @@ export async function RecommendedSection() {
 }
 
 export async function ActivitySection() {
-  return <ActivityFeed items={getActivity(1500)} />;
+  return <ActivityFeed items={getActivity(100)} />;
 }

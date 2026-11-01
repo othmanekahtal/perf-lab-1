@@ -1,11 +1,15 @@
 import 'server-only';
-import { getActivity, getKpis, getOrdersSince, getProductsByIds, getRecentOrders } from './data';
+import { getActivity, getChartAggregates, getKpis, getProductsByIds, getRecentOrders } from './data';
 import { getCampaigns, getForecast, getInventoryBatch, getPricingBatch, getRecommendations } from './upstream';
 
 export async function getChartsData() {
   const [forecast, campaigns] = await Promise.all([getForecast(30), getCampaigns()]);
-  // PERF-BUG #5: ~8,400 full order rows (every column) are sent to a client component that only needs a few aggregates. Affects S12, S13, S3.
-  return { forecast, campaigns, orders: getOrdersSince(30) };
+  const agg = getChartAggregates(30);
+  const revenue = [
+    ...agg.revenueByDay.map((d) => ({ day: d.day.slice(5), revenue: d.revenueCents, forecast: null as number | null })),
+    ...forecast.points.map((p) => ({ day: new Date(Date.UTC(2026, 10, p.day)).toISOString().slice(5, 10), revenue: null as number | null, forecast: p.revenueCents })),
+  ];
+  return { revenue, itemsByStatus: agg.itemsByStatus, revenueByChannel: agg.revenueByChannel, campaigns };
 }
 
 export async function getRecentOrdersWithStock(limit: number) {

@@ -38,6 +38,22 @@ export function getKpis(): Kpis {
   };
 }
 
+export type ChartAggregates = {
+  revenueByDay: { day: string; revenueCents: number }[];
+  itemsByStatus: { status: string; items: number }[];
+  revenueByChannel: { channel: string; revenueCents: number }[];
+};
+
+/** Everything the dashboard charts need, aggregated in SQL (a few dozen numbers instead of thousands of rows). */
+export function getChartAggregates(days: number): ChartAggregates {
+  const since = daysAgo(days);
+  return {
+    revenueByDay: plain(db().prepare(`SELECT substr(created_at, 1, 10) AS day, SUM(total_cents) AS revenueCents FROM orders WHERE created_at >= ? AND status NOT IN ('cancelled','refunded') GROUP BY day ORDER BY day`).all(since)),
+    itemsByStatus: plain(db().prepare('SELECT status, SUM(json_array_length(items)) AS items FROM orders WHERE created_at >= ? GROUP BY status ORDER BY status').all(since)),
+    revenueByChannel: plain(db().prepare(`SELECT channel, SUM(total_cents) AS revenueCents FROM orders WHERE created_at >= ? AND status NOT IN ('cancelled','refunded') GROUP BY channel ORDER BY revenueCents DESC`).all(since)),
+  };
+}
+
 /** Orders placed in the last `days` days, newest first. */
 export function getOrdersSince(days: number): Order[] {
   return plain<Order>(db().prepare('SELECT * FROM orders WHERE created_at >= ? ORDER BY created_at DESC').all(daysAgo(days)));
@@ -60,8 +76,13 @@ export function getProductsByIds(ids: number[]): Product[] {
   const rows = plain<Product>(db().prepare(`SELECT * FROM products WHERE id IN (${ids.map(() => '?').join(',')})`).all(...ids));
   return ids.map((id) => rows.find((r) => r.id === id)).filter((p): p is Product => Boolean(p));
 }
-export function getReviews(productId: number): Review[] {
-  return plain<Review>(db().prepare('SELECT * FROM reviews WHERE product_id = ? ORDER BY created_at DESC').all(productId));
+export function getReviews(productId: number, limit = 1000): Review[] {
+  return plain<Review>(db().prepare('SELECT * FROM reviews WHERE product_id = ? ORDER BY created_at DESC LIMIT ?').all(productId, limit));
+}
+
+export function getRatingHistogram(productId: number) {
+  const rows = plain<{ rating: number; n: number }>(db().prepare('SELECT rating, COUNT(*) AS n FROM reviews WHERE product_id = ? GROUP BY rating').all(productId));
+  return [5, 4, 3, 2, 1].map((stars) => ({ stars, count: rows.find((r) => r.rating === stars)?.n ?? 0 }));
 }
 
 export function getRelatedProducts(product: Product, limit: number): Product[] {

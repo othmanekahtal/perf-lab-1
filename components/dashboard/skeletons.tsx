@@ -26,7 +26,7 @@ export function ChartsSkeleton() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="panel p-4 lg:col-span-3"><div className={`${bar} mb-2 h-5 w-64`} /><div className={`${bar} h-[260px]`} /></div>
       <div className="panel p-4"><div className={`${bar} mb-2 h-5 w-40`} /><div className={`${bar} h-[220px]`} /></div>
-      <div className="panel p-4"><div className={`${bar} mb-2 h-5 w-48`} /><div className={`${bar} h-[248px]`} /></div>
+      <div className="panel p-4"><div className={`${bar} mb-2 h-5 w-48`} /><div className={`${bar} h-[220px]`} /><div className="mt-2 h-5" /></div>
       <div className="panel p-4"><div className={`${bar} mb-2 h-5 w-32`} /><div className={`${bar} h-24`} /></div>
     </div>
   );

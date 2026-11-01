@@ -1,19 +1,39 @@
 import type { Metadata } from 'next';
-import { ProductsExplorer } from '@/components/products/products-explorer';
-import { getAllProducts } from '@/lib/data';
+import { Suspense } from 'react';
+import { ProductFilters, ProductFiltersSkeleton } from '@/components/products/product-filters';
+import { ProductResults, ProductResultsSkeleton } from '@/components/products/product-results';
+import { catalogBrands, parseCatalogQuery } from '@/lib/catalog';
 
 export const metadata: Metadata = { title: 'Products' };
 
-export default async function ProductsPage() {
-  // PERF-BUG #5: all 5,000 products with every column (descriptions, specs, SEO…) are serialised into the RSC payload for a page that shows 24. Affects S12, S8, S3, S13.
-  const products = getAllProducts();
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export default function ProductsPage({ searchParams }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="products-explorer">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-        <p className="muted text-sm">{products.length.toLocaleString('en-IE')} products in the catalogue</p>
+        <p className="muted text-sm">5,000 products in the catalogue</p>
       </div>
-      <ProductsExplorer products={products} />
+      <Suspense fallback={<ProductFiltersSkeleton />}>
+        <ProductFilters brands={catalogBrands()} />
+      </Suspense>
+      <Suspense fallback={<ProductResultsSkeleton />}>
+        <Results searchParams={searchParams} />
+      </Suspense>
     </div>
   );
+}
+
+async function Results({ searchParams }: Props) {
+  const sp = await searchParams;
+  const query = parseCatalogQuery(sp);
+  const href = (page: number) => {
+    const next = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) if (typeof v === 'string' && k !== 'page') next.set(k, v);
+    if (page > 1) next.set('page', String(page));
+    const qs = next.toString();
+    return qs ? `/products?${qs}` : '/products';
+  };
+  return <ProductResults query={query} href={href} />;
 }
