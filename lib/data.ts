@@ -60,8 +60,6 @@ export function getProductsByIds(ids: number[]): Product[] {
   const rows = plain<Product>(db().prepare(`SELECT * FROM products WHERE id IN (${ids.map(() => '?').join(',')})`).all(...ids));
   return ids.map((id) => rows.find((r) => r.id === id)).filter((p): p is Product => Boolean(p));
 }
-
-// PERF-BUG M1: no index on reviews(product_id): full scan of 200,000 rows per product page.
 export function getReviews(productId: number): Review[] {
   return plain<Review>(db().prepare('SELECT * FROM reviews WHERE product_id = ? ORDER BY created_at DESC').all(productId));
 }
@@ -92,7 +90,6 @@ export function listOrders(opts: { status?: OrderStatus; q?: string; page: numbe
   const rows = plain<Order>(
     db().prepare(`SELECT * FROM orders ${clause} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...args, ORDERS_PAGE_SIZE, (opts.page - 1) * ORDERS_PAGE_SIZE),
   );
-  // PERF-BUG M1: one full scan of the 50,000-row orders table per row (no index on customer_email, nor on status/created_at); node:sqlite is synchronous, so this blocks the event loop under load. Mystery check M1.
   const customerStats = db().prepare('SELECT COUNT(*) AS n, SUM(total_cents) AS lifetime FROM orders WHERE customer_email = ?');
   const withCustomer: OrderListRow[] = rows.map((o) => {
     const s = customerStats.get(o.customer_email) as { n: number; lifetime: number };
