@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+data/*.db
+data/*.db-*
+public/products/
+test-results/
+playwright-report/
+.perf-tmp/
+.DS_Store
+.next-*.log
+.upstream.log
+.thirdparty.log

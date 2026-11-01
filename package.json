@@ -1,0 +1,45 @@
+{
+  "name": "shoply-admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/build.ts",
+    "start": "next start -p 3100",
+    "seed": "node scripts/seed.ts",
+    "upstream": "node servers/upstream.ts",
+    "thirdparty": "node servers/thirdparty.ts",
+    "perf": "node perf/cli.ts",
+    "validate": "node validate/cli.ts",
+    "test:e2e": "node scripts/e2e.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "bootstrap": "^5.3.8",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "^3.10.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/autocannon": "^7.12.7",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autocannon": "^8.0.0",
+    "postcss": "^8.5.32",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "web-vitals": "^6.2.3"
+  }
+}

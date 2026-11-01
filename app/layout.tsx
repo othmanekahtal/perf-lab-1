@@ -1,0 +1,30 @@
+import type { Metadata, Viewport } from 'next';
+import { cookies, headers } from 'next/headers';
+import './globals.css';
+
+const VENDOR_ORIGIN = process.env.NEXT_PUBLIC_VENDOR_ORIGIN ?? 'http://localhost:4002';
+
+export const metadata: Metadata = {
+  title: { default: 'Shoply Admin', template: '%s · Shoply Admin' },
+  description: 'Back office for the Shoply store',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#6d28d9',
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = (await cookies()).get('theme')?.value === 'dark' ? 'dark' : 'light';
+  const lang = ((await headers()).get('accept-language') ?? 'en').split(',')[0].split('-')[0] || 'en';
+  return (
+    <html lang={lang} data-theme={theme}>
+      <head>
+        <script src={`${VENDOR_ORIGIN}/analytics.js`} />
+        <script src={`${VENDOR_ORIGIN}/chat-widget.js`} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
