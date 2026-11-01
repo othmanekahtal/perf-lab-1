@@ -26,8 +26,8 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl space-y-6" data-testid="settings">
       <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-      <section className="card space-y-3 p-4">
-        <h2 className="card-title">Profile</h2>
+      <section className="panel space-y-3 p-4">
+        <h2 className="panel-title">Profile</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-medium">Name<input className="input mt-1" value={user.name} readOnly data-testid="settings-name" /></label>
           <label className="text-sm font-medium">Email<input className="input mt-1" value={user.email} readOnly /></label>
@@ -40,8 +40,8 @@ export default function SettingsPage() {
           ))}
         </div>
       </section>
-      <section className="card space-y-3 p-4">
-        <h2 className="card-title">Appearance</h2>
+      <section className="panel space-y-3 p-4">
+        <h2 className="panel-title">Appearance</h2>
         <div className="flex gap-2" role="radiogroup" aria-label="Theme">
           {(['light', 'dark'] as const).map((t) => (
             <button
@@ -58,8 +58,8 @@ export default function SettingsPage() {
           ))}
         </div>
       </section>
-      <section className="card space-y-3 p-4">
-        <h2 className="card-title">Notifications</h2>
+      <section className="panel space-y-3 p-4">
+        <h2 className="panel-title">Notifications</h2>
         {NOTIFICATIONS.map((n) => (
           <label key={n.id} className="flex items-start gap-3 text-sm">
             <input type="checkbox" className="mt-1" checked={prefs[n.id]} onChange={(e) => { setPrefs({ ...prefs, [n.id]: e.target.checked }); setSaved(false); }} />

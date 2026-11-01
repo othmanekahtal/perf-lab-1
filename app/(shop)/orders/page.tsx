@@ -45,7 +45,7 @@ export default async function OrdersPage({ searchParams }: Props) {
           </Link>
         ))}
       </div>
-      <div className="card overflow-x-auto">
+      <div className="panel overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm" data-testid="orders-table">
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50">
             <tr>

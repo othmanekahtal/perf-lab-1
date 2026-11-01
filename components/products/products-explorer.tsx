@@ -50,7 +50,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
 
   return (
     <div className="space-y-4" data-testid="products-explorer">
-      <div className="card space-y-3 p-4">
+      <div className="panel space-y-3 p-4">
         <div className="relative">
           <i className="mdi mdi-magnify absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
           <input
@@ -108,7 +108,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
 
       <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4" data-testid="product-grid">
         {visible.map((p) => (
-          <li key={p.id} className="card overflow-hidden" data-testid="product-card" data-product-id={p.id}>
+          <li key={p.id} className="panel overflow-hidden" data-testid="product-card" data-product-id={p.id}>
             <Link href={`/products/${p.id}`} className="block">
               <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
               <div className="space-y-1 p-3">

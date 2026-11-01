@@ -26,7 +26,7 @@ async function KpiCard({ card }: { card: Card }) {
   const fx = await getFxRates();
   const delta = card.cur !== undefined && card.prev ? (card.cur - card.prev) / card.prev : null;
   return (
-    <div className="card kpi-card p-4" data-testid={`kpi-${card.id}`}>
+    <div className="panel kpi-card p-3 sm:p-4" data-testid={`kpi-${card.id}`}>
       <div className="flex items-center justify-between">
         <span className="muted text-xs font-medium tracking-wide uppercase">{card.label}</span>
         <i className={`mdi ${card.icon} text-lg text-brand-500`} />
@@ -37,7 +37,7 @@ async function KpiCard({ card }: { card: Card }) {
         </div>
       ) : (
         <>
-          <div className="mt-2 text-2xl font-bold tabular-nums" data-testid="kpi-value">
+          <div className="mt-2 text-xl font-bold tabular-nums sm:text-2xl" data-testid="kpi-value">
             {card.valueCents !== undefined ? money(card.valueCents) : card.value}
           </div>
           {card.valueCents !== undefined && (
@@ -47,7 +47,7 @@ async function KpiCard({ card }: { card: Card }) {
       )}
       {delta !== null && !card.restricted && (
         <div className={`mt-1 text-xs font-semibold ${delta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-          <i className={`mdi ${delta >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'}`} /> {(delta * 100).toFixed(1)}% vs previous 30 days
+          <i className={`mdi ${delta >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'}`} /> {(delta * 100).toFixed(1)}% <span className="font-normal text-slate-500">vs prev.</span>
         </div>
       )}
     </div>

@@ -23,7 +23,7 @@ const analytics = `/*! InsightPulse Analytics SDK v8.14.2 | (c) InsightPulse Inc
   function fnv(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   // Device fingerprint + UA matching, computed eagerly at load.
   var ua = navigator.userAgent, fp = 0, matched = null;
-  for (var round = 0; round < 6; round++) {
+  for (var round = 0; round < 12; round++) {
     for (var i = 0; i < DEVICES.length; i++) {
       var d = DEVICES[i];
       fp = (fp + fnv(d[1] + ua + round)) >>> 0;
@@ -45,7 +45,7 @@ const analytics = `/*! InsightPulse Analytics SDK v8.14.2 | (c) InsightPulse Inc
 })();
 `;
 
-const phrases = Array.from({ length: 1800 }, () => [token(8), `${token(5)} ${token(9)} ${token(7)} ${token(4)}`]);
+const phrases = Array.from({ length: 4000 }, () => [token(8), `${token(5)} ${token(9)} ${token(7)} ${token(4)}`]);
 
 const chat = `/*! HelloDesk Chat Widget v3.2.0 | (c) HelloDesk Ltd.
  *
@@ -55,15 +55,24 @@ const chat = `/*! HelloDesk Chat Widget v3.2.0 | (c) HelloDesk Ltd.
  */
 (function () {
   var I18N = ${JSON.stringify(phrases)};
-  var dict = {};
-  for (var i = 0; i < I18N.length; i++) { dict[I18N[i][0]] = I18N[i][1].split(' ').reverse().join(' '); }
+  // Build the translation lookup and a trigram index for the canned-answer search.
+  var dict = {}, trigrams = {};
+  for (var i = 0; i < I18N.length; i++) {
+    var text = I18N[i][1].normalize('NFKD').toLowerCase();
+    dict[I18N[i][0]] = text.split(' ').reverse().join(' ');
+    for (var j = 0; j < text.length - 2; j++) {
+      var g = text.substr(j, 3);
+      (trigrams[g] = trigrams[g] || []).push(i);
+    }
+  }
+  for (var k in trigrams) trigrams[k].sort(function (a, b) { return I18N[a][1].localeCompare(I18N[b][1]); });
   function mount(status) {
     var host = document.getElementById('hellodesk-launcher');
     var bar = document.createElement('div');
     bar.setAttribute('data-hellodesk', '');
     bar.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 16px;background:#0f172a;color:#fff;font:500 14px/1.4 system-ui,sans-serif';
     bar.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>' +
-      '<span>' + status.agents + ' agents online · Avg. reply ' + status.replyMinutes + ' min</span>' +
+      '<span><b style="display:block">Need help? We\'re online</b>' + status.agents + ' agents · Avg. reply ' + status.replyMinutes + ' min</span>' +
       '<button style="margin-left:auto;background:#22c55e;color:#0f172a;border:0;border-radius:999px;padding:6px 14px;font-weight:600">Chat</button>';
     if (host) { host.appendChild(bar); } else { document.body.insertBefore(bar, document.body.firstChild); }
   }
@@ -71,7 +80,7 @@ const chat = `/*! HelloDesk Chat Widget v3.2.0 | (c) HelloDesk Ltd.
     fetch('http://localhost:${PORT}/chat/status').then(function (r) { return r.json(); }).then(mount).catch(function () {});
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
-  window.HelloDesk = { version: '3.2.0', dict: dict };
+  window.HelloDesk = { version: '3.2.0', dict: dict, index: trigrams };
 })();
 `;
 

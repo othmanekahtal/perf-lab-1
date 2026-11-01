@@ -11,7 +11,7 @@ export default function LoginPage() {
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 text-white"><i className="mdi mdi-shopping" /></span>
           Shoply Admin
         </div>
-        <div className="card p-6">
+        <div className="panel p-6">
           <h1 className="mb-1 text-lg font-semibold">Sign in</h1>
           <p className="muted mb-5 text-sm">Use <b>alice</b> or <b>bob</b> with the password <b>password</b>.</p>
           <LoginForm />

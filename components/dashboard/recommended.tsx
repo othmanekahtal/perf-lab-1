@@ -5,8 +5,8 @@ import type { Pricing, Product } from '@/lib/types';
 
 export function Recommended({ products, user }: { products: (Product & { pricing: Pricing })[]; user: string }) {
   return (
-    <section className="card p-4" data-testid="recommended" data-user={user}>
-      <h2 className="card-title mb-3">Recommended for you</h2>
+    <section className="panel p-4" data-testid="recommended" data-user={user}>
+      <h2 className="panel-title mb-3">Recommended for you</h2>
       <ul className="grid grid-cols-2 gap-3">
         {products.map((p) => (
           <li key={p.id} data-testid="recommended-item" data-product-id={p.id}>

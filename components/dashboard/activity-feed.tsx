@@ -37,9 +37,9 @@ export function ActivityFeed({ items }: { items: Item[] }) {
 
   let lastDay = '';
   return (
-    <section className="card p-4" data-testid="activity">
+    <section className="panel p-4" data-testid="activity">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="card-title">Activity</h2>
+        <h2 className="panel-title">Activity</h2>
         <span className="muted text-xs">{items.length.toLocaleString('en-IE')} events</span>
       </div>
       <div className="mb-3 h-1 overflow-hidden rounded bg-slate-100 dark:bg-slate-800">

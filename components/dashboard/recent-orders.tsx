@@ -5,9 +5,9 @@ import { StatusBadge } from '@/components/status-badge';
 
 export function RecentOrders({ orders }: { orders: (Order & { inventory: Inventory })[] }) {
   return (
-    <section className="card overflow-hidden" data-testid="recent-orders">
+    <section className="panel overflow-hidden" data-testid="recent-orders">
       <div className="flex items-center justify-between px-4 py-3">
-        <h2 className="card-title">Recent orders</h2>
+        <h2 className="panel-title">Recent orders</h2>
         <Link href="/orders" className="text-sm font-medium text-brand-600">View all</Link>
       </div>
       <div className="overflow-x-auto">

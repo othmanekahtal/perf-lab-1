@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       </div>
       <KpiGrid kpis={data.kpis} />
       <DashboardCharts orders={data.orders} forecast={data.forecast} campaigns={data.campaigns} />
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <RecentOrders orders={data.recent} />
         </div>

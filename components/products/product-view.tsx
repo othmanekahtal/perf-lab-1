@@ -44,7 +44,7 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
             <h1 className="text-2xl font-bold tracking-tight" data-testid="product-title">{product.name}</h1>
             <div className="mt-1 text-sm text-amber-600"><i className="mdi mdi-star" /> {product.rating.toFixed(2)} · {product.review_count} reviews</div>
           </div>
-          <div className="card p-4" data-testid="product-pricing">
+          <div className="panel p-4" data-testid="product-pricing">
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold tabular-nums" data-testid="product-live-price">{money(price)}</span>
               {pricing.discountPct > 0 && <span className="text-sm text-slate-400 line-through">{money(product.price_cents)}</span>}
@@ -76,8 +76,8 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
       </div>
 
       <section className="grid gap-6 lg:grid-cols-3" data-testid="reviews">
-        <div className="card p-4">
-          <h2 className="card-title mb-3">Ratings</h2>
+        <div className="panel p-4">
+          <h2 className="panel-title mb-3">Ratings</h2>
           {histogram.map((h) => (
             <div key={h.stars} className="mb-1 flex items-center gap-2 text-xs">
               <span className="w-6">{h.stars}★</span>
@@ -90,7 +90,7 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
         </div>
         <div className="space-y-3 lg:col-span-2">
           {(showAll ? reviews : reviews.slice(0, 5)).map((r) => (
-            <article key={r.id} className="card p-4" data-testid="review">
+            <article key={r.id} className="panel p-4" data-testid="review">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold">{r.title}</span>
                 <span className="text-amber-600">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
@@ -106,10 +106,10 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
       </section>
 
       <section data-testid="related">
-        <h2 className="card-title mb-3">Related products</h2>
+        <h2 className="panel-title mb-3">Related products</h2>
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {related.map((p) => (
-            <li key={p.id} className="card overflow-hidden" data-testid="related-item">
+            <li key={p.id} className="panel overflow-hidden" data-testid="related-item">
               <Link href={`/products/${p.id}`}>
                 <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
                 <div className="p-2 text-xs">

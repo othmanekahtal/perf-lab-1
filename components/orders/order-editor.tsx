@@ -20,17 +20,17 @@ export function OrderEditor({ order, items, products }: Props) {
   }, [state, router]);
 
   return (
-    <form action={action} className="grid gap-6 lg:grid-cols-3" data-testid="order-editor">
+    <form action={action} className="grid grid-cols-1 gap-6 lg:grid-cols-3" data-testid="order-editor">
       <input type="hidden" name="id" value={order.id} />
       <div className="space-y-4 lg:col-span-2">
-        <div className="card p-4">
+        <div className="panel p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h1 className="text-xl font-bold" data-testid="order-number">{order.number}</h1>
             <StatusBadge status={order.status} />
           </div>
           <div className="muted text-sm">Placed {dateTime(order.created_at)} via {order.channel} · last updated {dateTime(order.updated_at)}</div>
         </div>
-        <div className="card overflow-x-auto">
+        <div className="panel overflow-x-auto">
           <table className="w-full min-w-[480px] text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50">
               <tr><th className="px-4 py-2">Item</th><th className="px-4 py-2">Unit</th><th className="px-4 py-2">Qty</th><th className="px-4 py-2 text-right">Line</th></tr>
@@ -64,8 +64,8 @@ export function OrderEditor({ order, items, products }: Props) {
         </div>
       </div>
       <div className="space-y-4">
-        <div className="card space-y-3 p-4">
-          <h2 className="card-title">Fulfilment</h2>
+        <div className="panel space-y-3 p-4">
+          <h2 className="panel-title">Fulfilment</h2>
           <label className="block text-sm font-medium">
             Status
             <select name="status" defaultValue={order.status} className="input mt-1 capitalize" data-testid="order-status-select">

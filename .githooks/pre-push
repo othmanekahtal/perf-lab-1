@@ -1,0 +1,5 @@
+#!/bin/sh
+# Optional: run the deterministic performance checks before pushing.
+# Enable with: git config core.hooksPath .githooks
+echo "pre-push: pnpm validate -- --deterministic (skip with git push --no-verify)"
+pnpm validate -- --deterministic --skip-e2e

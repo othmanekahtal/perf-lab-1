@@ -45,9 +45,9 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
   if (!mounted) return null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3" data-testid="charts">
-      <section className="card chart-card p-4 lg:col-span-3" data-testid="chart-revenue">
-        <h2 className="card-title mb-2">Revenue · last 30 days and 30-day forecast</h2>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3" data-testid="charts">
+      <section className="panel chart-card p-4 lg:col-span-3" data-testid="chart-revenue">
+        <h2 className="panel-title mb-2">Revenue · last 30 days and 30-day forecast</h2>
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={revenue} margin={{ left: 0, right: 8, top: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -62,8 +62,8 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
           </AreaChart>
         </ResponsiveContainer>
       </section>
-      <section className="card chart-card p-4" data-testid="chart-status">
-        <h2 className="card-title mb-2">Items by order status</h2>
+      <section className="panel chart-card p-4" data-testid="chart-status">
+        <h2 className="panel-title mb-2">Items by order status</h2>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={byStatus}>
             <XAxis dataKey="status" tick={{ fontSize: 11 }} />
@@ -85,8 +85,8 @@ function ChannelMix() {
     fetch('/api/sales/channels').then((r) => r.json()).then((d: { channels: { channel: string; revenueCents: number }[] }) => setData(d.channels));
   }, []);
   return (
-    <section className="card chart-card p-4" data-testid="chart-channels">
-      <h2 className="card-title mb-2">Revenue by channel · 30 days</h2>
+    <section className="panel chart-card p-4" data-testid="chart-channels">
+      <h2 className="panel-title mb-2">Revenue by channel · 30 days</h2>
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie data={data} dataKey="revenueCents" nameKey="channel" innerRadius={50} outerRadius={80} isAnimationActive={false}>
@@ -108,8 +108,8 @@ function ChannelMix() {
 
 function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
   return (
-    <section className="card chart-card p-4" data-testid="campaigns">
-      <h2 className="card-title mb-2">Campaigns</h2>
+    <section className="panel chart-card p-4" data-testid="campaigns">
+      <h2 className="panel-title mb-2">Campaigns</h2>
       <ul className="space-y-2 text-sm">
         {campaigns.map((c) => (
           <li key={c.id} className="flex items-center justify-between gap-2">
