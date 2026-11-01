@@ -176,4 +176,7 @@ Correctness gates (always on): **F** freshness, **G** isolation, **E2E** `pnpm t
 Medians of 7 runs (± IQR for timing metrics). The Validator column is the score of the full `pnpm validate` run on the same commit.
 
 <!-- results:start -->
+| Week | Label | Date | Commit | Validator | TTFB | FCP | LCP | CLS | INP | TBT | Time to interactive | Long tasks >200ms | Forced reflows | HTML | RSC (dash / products nav) | CSS (render-blocking) | JS initial / async | 3P bytes / main thread | Warm transfer | Upstream calls cold / warm | Soft nav total | Heap growth | Server / req/s · p95 | F | G | Raw |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | Week 0 baseline | 2026-11-01 | 29fc617 | 0 / 50 | 5769 ms ±3 | 8424 ms ±6 | 8424 ms ±6 | 0.305 | 752 ms | 483 ms ±29 | 20379 ms ±11 | 3 | 805 ±13.5 | 6.10 MB | 5.61 MB / 6.22 MB | 577 KB (3) | 867 KB / 0 KB | 644 KB / 498 ms ±8 | 12.43 MB | 23 / 23 | 9457 ms ±11 | 53.4 MB | 1.0/s · 7278 ms | ✅ | ✅ | [json](perf-results/2026-11-01-03-20-35-week-0-baseline.json) |
 <!-- results:end -->

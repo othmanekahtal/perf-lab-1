@@ -1,0 +1,298 @@
+[
+ {
+  "week": 0,
+  "label": "Week 0 baseline",
+  "date": "2026-11-01T03:20:35.215Z",
+  "file": "2026-11-01-03-20-35-week-0-baseline.json",
+  "commit": "29fc617",
+  "score": "0 / 50",
+  "freshness": true,
+  "isolation": true,
+  "metrics": {
+   "ttfb": {
+    "median": 5768.899999976158,
+    "iqr": 2.7500000298023224
+   },
+   "fcp": {
+    "median": 8424,
+    "iqr": 6
+   },
+   "lcp": {
+    "median": 8424,
+    "iqr": 6
+   },
+   "cls": {
+    "median": 0.30478858494388444,
+    "iqr": 0
+   },
+   "tbt": {
+    "median": 482.554,
+    "iqr": 29.286500000000046
+   },
+   "interactiveMs": {
+    "median": 20379.400000035763,
+    "iqr": 10.699999988079071
+   },
+   "longTasks": {
+    "median": 10,
+    "iqr": 0
+   },
+   "longTasksOver200": {
+    "median": 3,
+    "iqr": 0
+   },
+   "forcedReflows": {
+    "median": 805,
+    "iqr": 13.5
+   },
+   "forcedReflowMs": {
+    "median": 655.2960000000011,
+    "iqr": 17.076999999999543
+   },
+   "scrollBlockingMs": {
+    "median": 12.9,
+    "iqr": 3.1999999999999993
+   },
+   "scrollScriptMs": {
+    "median": 1097.9099999999996,
+    "iqr": 5.879500000000689
+   },
+   "idleLayoutsPerSec": {
+    "median": 59.925572439030724,
+    "iqr": 0.036130222320011285
+   },
+   "layoutMs": {
+    "median": 1126.7540000000004,
+    "iqr": 20.60150000000135
+   },
+   "htmlKB": {
+    "median": 6244.064453125,
+    "iqr": 0
+   },
+   "rscInlineKB": {
+    "median": 5749.2802734375,
+    "iqr": 0
+   },
+   "cssKB": {
+    "median": 577.193359375,
+    "iqr": 0
+   },
+   "fontKB": {
+    "median": 394.1025390625,
+    "iqr": 0
+   },
+   "renderBlockingCount": {
+    "median": 3,
+    "iqr": 0
+   },
+   "renderBlockingKB": {
+    "median": 1220.447265625,
+    "iqr": 0
+   },
+   "jsInitialKB": {
+    "median": 867.0927734375,
+    "iqr": 0
+   },
+   "jsAsyncKB": {
+    "median": 0,
+    "iqr": 0
+   },
+   "thirdPartyKB": {
+    "median": 643.8828125,
+    "iqr": 0
+   },
+   "thirdPartyMainThreadMs": {
+    "median": 497.6950000000001,
+    "iqr": 7.906499999999994
+   },
+   "firstPartyTextKB": {
+    "median": 7739.5419921875,
+    "iqr": 0.1904296875
+   },
+   "coldTransferKB": {
+    "median": 13407.1611328125,
+    "iqr": 0.1904296875
+   },
+   "upstreamCallsCold": {
+    "median": 23,
+    "iqr": 0
+   },
+   "staticCacheableRatio": {
+    "median": 0,
+    "iqr": 0
+   },
+   "proxyMs": {
+    "median": 13.8,
+    "iqr": 0.75
+   },
+   "warmTtfb": {
+    "median": 5760.700000047684,
+    "iqr": 4.5999999940395355
+   },
+   "warmFcp": {
+    "median": 7972,
+    "iqr": 6
+   },
+   "warmLcp": {
+    "median": 7972,
+    "iqr": 6
+   },
+   "warmTransferKB": {
+    "median": 12726.9697265625,
+    "iqr": 0.03076171875
+   },
+   "warmRequests": {
+    "median": 33,
+    "iqr": 0
+   },
+   "warmFromCache": {
+    "median": 0,
+    "iqr": 0
+   },
+   "upstreamCallsWarm": {
+    "median": 23,
+    "iqr": 0
+   },
+   "navProductsMs": {
+    "median": 7311.200000047684,
+    "iqr": 4.949999988079071
+   },
+   "navDetailMs": {
+    "median": 1711.3999999761581,
+    "iqr": 3.1500000059604645
+   },
+   "navBackMs": {
+    "median": 434.19999998807907,
+    "iqr": 5.0999999940395355
+   },
+   "navTotalMs": {
+    "median": 9456.500000059605,
+    "iqr": 10.699999958276749
+   },
+   "rscNavProductsKB": {
+    "median": 6372.373046875,
+    "iqr": 2.0712890625
+   },
+   "rscNavDetailKB": {
+    "median": 35.5830078125,
+    "iqr": 0
+   },
+   "upstreamCallsDetail": {
+    "median": 10,
+    "iqr": 0
+   },
+   "inp": {
+    "median": 752,
+    "iqr": 0
+   },
+   "inpInputDelay": {
+    "median": 0.5,
+    "iqr": 0.3499999940395355
+   },
+   "inpProcessing": {
+    "median": 743.6000000238419,
+    "iqr": 1.2999999821186066
+   },
+   "inpPresentation": {
+    "median": 7.900000035762787,
+    "iqr": 1.5499999821186066
+   },
+   "interactionLongTasksOver200": {
+    "median": 8,
+    "iqr": 0
+   },
+   "interactionBlockingMs": {
+    "median": 4204.1,
+    "iqr": 11.25000000000091
+   },
+   "productsTtfb": {
+    "median": 309.2999999523163,
+    "iqr": 23.799999982118607
+   },
+   "productsLcp": {
+    "median": 7756,
+    "iqr": 24
+   },
+   "productsHtmlKB": {
+    "median": 7296.037109375,
+    "iqr": 0
+   },
+   "productsRscInlineKB": {
+    "median": 7266.068359375,
+    "iqr": 0
+   },
+   "heapGrowthMB": {
+    "median": 53.42770004272461,
+    "iqr": 0.009313583374023438
+   },
+   "heapAfterMB": {
+    "median": 75.52594375610352,
+    "iqr": 0.0021762847900390625
+   },
+   "serverTtfb_dashboard": {
+    "median": 5867.5804580000695,
+    "iqr": 0
+   },
+   "serverTtfb_products": {
+    "median": 315.7475829999894,
+    "iqr": 0
+   },
+   "serverTtfb_settings": {
+    "median": 232.41233399999328,
+    "iqr": 0
+   },
+   "serverTtfb_orders": {
+    "median": 382.19295800011605,
+    "iqr": 0
+   },
+   "serverStaticMs": {
+    "median": 13.713790999958292,
+    "iqr": 0
+   },
+   "rps_dashboard": {
+    "median": 1,
+    "iqr": 0
+   },
+   "p95_dashboard": {
+    "median": 7278.4500314,
+    "iqr": 0
+   },
+   "rps_products": {
+    "median": 4.1,
+    "iqr": 0
+   },
+   "p95_products": {
+    "median": 2722.3940000000002,
+    "iqr": 0
+   },
+   "rps_orders": {
+    "median": 5.3,
+    "iqr": 0
+   },
+   "p95_orders": {
+    "median": 2763.859099999999,
+    "iqr": 0
+   },
+   "isolationPass": {
+    "median": 1,
+    "iqr": 0
+   },
+   "freshnessPass": {
+    "median": 1,
+    "iqr": 0
+   },
+   "postEditNavMs": {
+    "median": 5929.5,
+    "iqr": 0
+   },
+   "postEditUpstreamCalls": {
+    "median": 22,
+    "iqr": 0
+   },
+   "prerenderedRoutes": {
+    "median": 0,
+    "iqr": 0
+   }
+  }
+ }
+]

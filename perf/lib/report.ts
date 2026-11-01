@@ -108,6 +108,7 @@ export const COLUMNS: [string, (e: HistoryEntry) => string][] = [
   ['CLS', (e) => v(e, 'cls')],
   ['INP', (e) => v(e, 'inp')],
   ['TBT', (e) => v(e, 'tbt')],
+  ['Time to interactive', (e) => v(e, 'interactiveMs')],
   ['Long tasks >200ms', (e) => v(e, 'longTasksOver200')],
   ['Forced reflows', (e) => v(e, 'forcedReflows')],
   ['HTML', (e) => v(e, 'htmlKB')],
@@ -139,6 +140,11 @@ const END = '<!-- results:end -->';
 export function appendToPerfMd(e: HistoryEntry) {
   const history = loadHistory();
   history.push(e);
+  writePerfMd(history);
+}
+
+/** Rewrites the results table of PERF.md (and history.json) from the given history. */
+export function writePerfMd(history: HistoryEntry[]) {
   mkdirSync(RESULTS_DIR, { recursive: true });
   writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 1));
   const md = existsSync(PERF_MD) ? readFileSync(PERF_MD, 'utf8') : `# Performance log\n\n${START}\n${END}\n`;
