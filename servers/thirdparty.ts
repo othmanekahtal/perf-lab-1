@@ -38,6 +38,22 @@ const analytics = `/*! InsightPulse Analytics SDK v8.14.2 | (c) InsightPulse Inc
     if (!queue.length) return;
     try { navigator.sendBeacon('http://localhost:${PORT}/collect', JSON.stringify(queue.splice(0))); } catch (e) {}
   }
+  // Session replay: snapshot the DOM once the page has loaded.
+  function serialize(node) {
+    if (node.nodeType === 3) return node.nodeValue;
+    if (node.nodeType !== 1 || node.tagName === 'SCRIPT') return null;
+    var out = { t: node.tagName, a: {}, c: [], r: null };
+    for (var i = 0; i < node.attributes.length; i++) out.a[node.attributes[i].name] = node.attributes[i].value;
+    var box = node.getBoundingClientRect();
+    out.r = [box.x, box.y, box.width, box.height];
+    for (var c = node.firstChild; c; c = c.nextSibling) { var s = serialize(c); if (s !== null) out.c.push(s); }
+    return out;
+  }
+  function snapshot() {
+    var json = JSON.stringify(serialize(document.documentElement));
+    track('dom_snapshot', { bytes: json.length, hash: fnv(json) });
+  }
+  if (document.readyState === 'complete') setTimeout(snapshot, 0); else addEventListener('load', snapshot);
   window.InsightPulse = { track: track, fingerprint: fp, device: matched, initMs: performance.now() - start };
   track('page_view');
   addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
@@ -72,7 +88,7 @@ const chat = `/*! HelloDesk Chat Widget v3.2.0 | (c) HelloDesk Ltd.
     bar.setAttribute('data-hellodesk', '');
     bar.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 16px;background:#0f172a;color:#fff;font:500 14px/1.4 system-ui,sans-serif';
     bar.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>' +
-      '<span><b style="display:block">Need help? We\'re online</b>' + status.agents + ' agents · Avg. reply ' + status.replyMinutes + ' min</span>' +
+      '<span><b style="display:block">Need help? We’re online</b>' + status.agents + ' agents · Avg. reply ' + status.replyMinutes + ' min</span>' +
       '<button style="margin-left:auto;background:#22c55e;color:#0f172a;border:0;border-radius:999px;padding:6px 14px;font-weight:600">Chat</button>';
     if (host) { host.appendChild(bar); } else { document.body.insertBefore(bar, document.body.firstChild); }
   }
