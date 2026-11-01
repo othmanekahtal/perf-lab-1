@@ -2,22 +2,25 @@
 
 import { useEffect, useState } from 'react';
 
-// PERF-BUG #13: unbounded module-level history. Affects S9.
-const samples: { at: number; visitors: number; pages: string[] }[] = [];
-
 export function LiveVisitors() {
   const [visitors, setVisitors] = useState<number | null>(null);
   useEffect(() => {
+    const controller = new AbortController();
     const poll = async () => {
-      const res = await fetch('/api/live');
-      const data = (await res.json()) as { visitors: number; pages: string[] };
-      samples.push({ at: Date.now(), ...data });
-      setVisitors(data.visitors);
+      try {
+        const res = await fetch('/api/live', { signal: controller.signal });
+        const data = (await res.json()) as { visitors: number };
+        setVisitors(data.visitors);
+      } catch {}
     };
     poll();
-    // PERF-BUG #13: interval and focus listener are never cleared; every dashboard visit adds another poller. Affects S9 (and S10).
-    setInterval(poll, 2000);
+    const timer = setInterval(poll, 2000);
     window.addEventListener('focus', poll);
+    return () => {
+      controller.abort();
+      clearInterval(timer);
+      window.removeEventListener('focus', poll);
+    };
   }, []);
   // PERF-BUG #5: renders nothing until the first client fetch resolves, then pushes the page down. Affects S4.
   if (visitors === null) return null;

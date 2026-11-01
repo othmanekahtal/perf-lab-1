@@ -16,8 +16,8 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
   useEffect(() => {
     const onResize = () => setDensity(Math.max(1, Math.round(orders.length / window.innerWidth / 10)));
     onResize();
-    // PERF-BUG #13: listener never removed, its closure keeps `orders` (8,400 rows) alive after every visit. Affects S9.
     window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [orders]);
 
   const revenue = useMemo(() => {

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { money, productImage } from '@/lib/format';
 import type { Product } from '@/lib/types';
 import { effectivePrice, relevance, sortProducts, type SortKey } from './search';
@@ -10,10 +10,6 @@ import { Icon } from '@/components/icon';
 
 const PAGE_SIZE = 24;
 const CATEGORIES = ['Audio', 'Cameras', 'Computers', 'Gaming', 'Home', 'Kitchen', 'Outdoor', 'Phones', 'Smart Home', 'Sports', 'Wearables', 'Office'];
-
-// Remembers previous result sets so going back to the list is instant.
-// PERF-BUG #13: module-level array that is never trimmed and retains every products array ever received. Affects S9.
-const visited: { at: number; products: Product[]; results: Product[] }[] = [];
 
 type Filters = { query: string; categories: string[]; brand: string; inStock: boolean; sort: SortKey };
 
@@ -35,10 +31,6 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
   const [results, setResults] = useState<Product[]>(() => compute(products, filters));
   const [page, setPage] = useState(1);
   const brands = [...new Set(products.map((p) => p.brand))].sort();
-
-  useEffect(() => {
-    visited.push({ at: Date.now(), products, results });
-  }, [products, results]);
 
   // PERF-BUG #11: the handler recomputes fuzzy relevance for 5,000 products and re-sorts synchronously; one keystroke = one long task. Fix family: yield to the main thread (scheduler.yield/chunking/transitions). Affects S5.
   const update = (patch: Partial<Filters>) => {
