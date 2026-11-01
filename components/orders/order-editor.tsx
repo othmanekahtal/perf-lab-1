@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useState } from 'react';
 import { updateOrder, type SaveState } from '@/app/actions/orders';
 import { StatusBadge } from '@/components/status-badge';
 import { dateTime, money } from '@/lib/format';
@@ -10,15 +9,9 @@ import { ORDER_STATUSES, type Order, type OrderItem } from '@/lib/types';
 type Props = { order: Order; items: OrderItem[]; products: { id: number; name: string; sku: string }[] };
 
 export function OrderEditor({ order, items, products }: Props) {
-  const router = useRouter();
   const [state, action, pending] = useActionState<SaveState, FormData>(updateOrder, {});
   const [qty, setQty] = useState(items.map((i) => i.qty));
   const total = items.reduce((sum, item, i) => sum + item.unitPriceCents * (qty[i] ?? 0), 0);
-
-  useEffect(() => {
-    // PERF-BUG #6: refresh hack, re-renders the whole current route after every save. Affects S14.
-    if (state.ok) router.refresh();
-  }, [state, router]);
 
   return (
     <form action={action} className="grid grid-cols-1 gap-6 lg:grid-cols-3" data-testid="order-editor">

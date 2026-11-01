@@ -1,7 +1,7 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { getOrder, saveOrder } from '@/lib/data';
+import { updateTag } from 'next/cache';
+import { getOrder, saveOrder, TAGS } from '@/lib/data';
 import { requireUser } from '@/lib/session';
 import { ORDER_STATUSES, type OrderItem, type OrderStatus } from '@/lib/types';
 
@@ -28,7 +28,8 @@ export async function updateOrder(_prev: SaveState, formData: FormData): Promise
   const total = kept.reduce((sum, i) => sum + i.qty * i.unitPriceCents, 0);
 
   saveOrder(id, { status, shipping_address: shipping, notes, items: JSON.stringify(kept), total_cents: total });
-  // PERF-BUG #6: invalidates every route under the root layout instead of the data that changed (cacheTag + updateTag). Affects S14.
-  revalidatePath('/', 'layout');
+  // Read-your-own-writes for exactly what depends on orders; FX, forecast, catalogue and recommendations stay cached.
+  updateTag(TAGS.orders);
+  updateTag(TAGS.order(id));
   return { ok: true, savedAt: new Date().toISOString() };
 }
