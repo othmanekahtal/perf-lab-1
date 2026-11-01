@@ -5,14 +5,11 @@ const nextConfig: NextConfig = {
   // PERF-BUG M2: compression disabled; HTML, JS, CSS and RSC are sent uncompressed (there is no load balancer here). Mystery check M2.
   compress: false,
   poweredByHeader: false,
-  // PERF-BUG #9: forces `Cache-Control: no-store` on everything, including content-hashed /_next/static files and images. Affects S7.
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [{ key: 'Cache-Control', value: 'no-store, must-revalidate' }],
-      },
-    ];
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    qualities: [60, 75],
+    // Product photos never change in place (a new photo gets a new file name).
+    minimumCacheTTL: 2_678_400,
   },
 };
 

@@ -113,8 +113,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
         {visible.map((p) => (
           <li key={p.id} className="panel overflow-hidden" data-testid="product-card" data-product-id={p.id}>
             <Link href={`/products/${p.id}`} className="block">
-              {/* PERF-BUG #9: `unoptimized` 1600 px originals in a small grid. Affects S3, S7. */}
-              <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
+              <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} sizes="(min-width: 1280px) 300px, (min-width: 768px) 32vw, 48vw" quality={60} className="aspect-square w-full object-cover" />
               <div className="space-y-1 p-3">
                 <div className="muted text-xs">{p.brand} · {p.category}</div>
                 <div className="line-clamp-2 text-sm font-medium" data-testid="product-name">{p.name}</div>

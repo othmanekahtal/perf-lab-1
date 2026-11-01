@@ -30,12 +30,11 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
       </nav>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3" data-testid="product-gallery">
-          {/* PERF-BUG #9: unoptimized hero (and lazy by default, although it is the LCP). Affects S3. */}
-          <Image src={productImage(active)} alt={product.name} width={1600} height={1600} unoptimized className="aspect-square w-full rounded-xl object-cover" data-testid="product-hero" />
+          <Image src={productImage(active)} alt={product.name} width={1600} height={1600} sizes="(min-width: 1024px) 600px, 100vw" preload className="aspect-square w-full rounded-xl object-cover" data-testid="product-hero" />
           <div className="grid grid-cols-4 gap-2">
             {images.map((img) => (
               <button key={img} onClick={() => setActive(img)} className={`overflow-hidden rounded-lg border-2 ${img === active ? 'border-brand-500' : 'border-transparent'}`} aria-label="Show image">
-                <Image src={productImage(img)} alt="" width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
+                <Image src={productImage(img)} alt="" width={1600} height={1600} sizes="(min-width: 1024px) 150px, 25vw" quality={60} className="aspect-square w-full object-cover" />
               </button>
             ))}
           </div>
@@ -113,7 +112,7 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
           {related.map((p) => (
             <li key={p.id} className="panel overflow-hidden" data-testid="related-item">
               <Link href={`/products/${p.id}`}>
-                <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} unoptimized className="aspect-square w-full object-cover" />
+                <Image src={productImage(p.image)} alt={p.name} width={1600} height={1600} sizes="(min-width: 768px) 25vw, 48vw" quality={60} className="aspect-square w-full object-cover" />
                 <div className="p-2 text-xs">
                   <div className="line-clamp-1 font-medium">{p.name}</div>
                   <div className="font-semibold">{money(p.price_cents * (1 - p.pricing.discountPct / 100))}</div>
