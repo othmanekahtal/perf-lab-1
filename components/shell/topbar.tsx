@@ -1,5 +1,6 @@
 import { logout } from '@/app/actions/auth';
 import { requireUser } from '@/lib/session';
+import { Icon } from '@/components/icon';
 
 export async function Topbar() {
   // PERF-BUG #7: personal data (name/role) read in the shared shell. Affects S1.
@@ -7,7 +8,7 @@ export async function Topbar() {
   return (
     <header className="flex items-center gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur lg:px-8 dark:border-slate-800 dark:bg-slate-900/80">
       <div className="relative hidden flex-1 md:block">
-        <i className="mdi mdi-magnify absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
+        <Icon name="magnify" className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
         <input placeholder="Search orders, products, customers…" className="input max-w-md ps-9" aria-label="Global search" />
       </div>
       <div className="ms-auto flex items-center gap-3">
@@ -20,7 +21,7 @@ export async function Topbar() {
           <div className="text-xs capitalize text-slate-500" data-testid="current-role">{user.role}</div>
         </div>
         <form action={logout}>
-          <button className="btn-ghost px-2 py-1" title="Sign out" data-testid="logout"><i className="mdi mdi-logout" /></button>
+          <button className="btn-ghost px-2 py-1" title="Sign out" data-testid="logout"><Icon name="logout" /></button>
         </form>
       </div>
     </header>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { setTheme } from '@/app/actions/settings';
 import type { User } from '@/lib/types';
+import { Icon } from '@/components/icon';
 
 const NOTIFICATIONS = [
   { id: 'orders', label: 'New orders', hint: 'A summary every hour' },
@@ -54,7 +55,7 @@ export default function SettingsPage() {
               className={`btn-ghost capitalize ${user.theme === t ? 'border-brand-500 text-brand-700' : ''}`}
               data-testid={`theme-${t}`}
             >
-              <i className={`mdi ${t === 'light' ? 'mdi-white-balance-sunny' : 'mdi-weather-night'}`} /> {t}
+              <Icon name={t === 'light' ? 'white-balance-sunny' : 'weather-night'} /> {t}
             </button>
           ))}
         </div>

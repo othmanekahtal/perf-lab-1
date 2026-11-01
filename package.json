@@ -21,8 +21,7 @@
     "validate:self-test": "node validate/self-test.ts"
   },
   "dependencies": {
-    "@mdi/font": "^7.4.47",
-    "bootstrap": "^5.3.8",
+    "@mdi/js": "^7.4.47",
     "next": "16.4.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",

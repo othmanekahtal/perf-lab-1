@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { money, productImage } from '@/lib/format';
 import type { Product } from '@/lib/types';
 import { effectivePrice, relevance, sortProducts, type SortKey } from './search';
+import { Icon } from '@/components/icon';
 
 const PAGE_SIZE = 24;
 const CATEGORIES = ['Audio', 'Cameras', 'Computers', 'Gaming', 'Home', 'Kitchen', 'Outdoor', 'Phones', 'Smart Home', 'Sports', 'Wearables', 'Office'];
@@ -54,7 +55,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
     <div className="space-y-4" data-testid="products-explorer">
       <div className="panel space-y-3 p-4">
         <div className="relative">
-          <i className="mdi mdi-magnify absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
+          <Icon name="magnify" className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
           <input
             className="input ps-9"
             placeholder="Search products…"
@@ -119,9 +120,9 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
                 <div className="line-clamp-2 text-sm font-medium" data-testid="product-name">{p.name}</div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold tabular-nums" data-testid="product-price">{money(effectivePrice(p))}</span>
-                  <span className="text-xs text-amber-600"><i className="mdi mdi-star" /> {p.rating.toFixed(1)}</span>
+                  <span className="text-xs text-amber-600"><Icon name="star" /> {p.rating.toFixed(1)}</span>
                 </div>
-                {p.stock === 0 ? <span className="badge text-bg-danger">Out of stock</span> : <span className="badge text-bg-success">{p.stock} in stock</span>}
+                {p.stock === 0 ? <span className="chip border-transparent bg-red-600 text-white">Out of stock</span> : <span className="chip border-transparent bg-emerald-600 text-white">{p.stock} in stock</span>}
               </div>
             </Link>
           </li>
@@ -130,11 +131,11 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
 
       <nav className="flex items-center justify-center gap-2" aria-label="Pagination" data-testid="pagination">
         <button className="btn-ghost" disabled={page === 1} onClick={() => setPage(page - 1)} data-testid="page-prev">
-          <i className="mdi mdi-chevron-left" /> Prev
+          <Icon name="chevron-left" /> Prev
         </button>
         <span className="text-sm tabular-nums" data-testid="page-indicator">Page {page} of {pages}</span>
         <button className="btn-ghost" disabled={page === pages} onClick={() => setPage(page + 1)} data-testid="page-next">
-          Next <i className="mdi mdi-chevron-right" />
+          Next <Icon name="chevron-right" />
         </button>
       </nav>
     </div>

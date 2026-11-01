@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { dateTime, money, productImage } from '@/lib/format';
 import type { Inventory, Pricing, Product, Review } from '@/lib/types';
+import { Icon } from '@/components/icon';
 
 type Props = {
   product: Product;
@@ -43,20 +44,20 @@ export function ProductView({ product, pricing, inventory, reviews, related }: P
           <div>
             <div className="muted text-sm">{product.brand} · {product.sku}</div>
             <h1 className="text-2xl font-bold tracking-tight" data-testid="product-title">{product.name}</h1>
-            <div className="mt-1 text-sm text-amber-600"><i className="mdi mdi-star" /> {product.rating.toFixed(2)} · {product.review_count} reviews</div>
+            <div className="mt-1 text-sm text-amber-600"><Icon name="star" /> {product.rating.toFixed(2)} · {product.review_count} reviews</div>
           </div>
           <div className="panel p-4" data-testid="product-pricing">
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold tabular-nums" data-testid="product-live-price">{money(price)}</span>
               {pricing.discountPct > 0 && <span className="text-sm text-slate-400 line-through">{money(product.price_cents)}</span>}
-              {pricing.discountPct > 0 && <span className="badge text-bg-success">-{pricing.discountPct}%</span>}
+              {pricing.discountPct > 0 && <span className="chip border-transparent bg-emerald-600 text-white">-{pricing.discountPct}%</span>}
             </div>
             <div className="muted mt-1 text-xs">Competitors: {pricing.competitorDeltaPct > 0 ? '+' : ''}{pricing.competitorDeltaPct}% · price valid until {pricing.validUntil.slice(0, 10)}</div>
             <div className="mt-3 text-sm" data-testid="product-stock">
               {inventory.available > 0 ? (
-                <span className="text-emerald-700"><i className="mdi mdi-check-circle" /> {inventory.available} available in {inventory.warehouse} ({inventory.reserved} reserved)</span>
+                <span className="text-emerald-700"><Icon name="check-circle" /> {inventory.available} available in {inventory.warehouse} ({inventory.reserved} reserved)</span>
               ) : (
-                <span className="text-red-600"><i className="mdi mdi-alert-circle" /> Out of stock · restock {inventory.restockEta}</span>
+                <span className="text-red-600"><Icon name="alert-circle" /> Out of stock · restock {inventory.restockEta}</span>
               )}
             </div>
           </div>

@@ -2,17 +2,18 @@ import type { Kpis } from '@/lib/data';
 import { money } from '@/lib/format';
 import { requireUser } from '@/lib/session';
 import { getFxRates } from '@/lib/upstream';
+import { Icon, type IconName } from '@/components/icon';
 
-type Card = { id: string; label: string; icon: string; valueCents?: number; value?: string; prev?: number; cur?: number; restricted?: boolean };
+type Card = { id: string; label: string; icon: IconName; valueCents?: number; value?: string; prev?: number; cur?: number; restricted?: boolean };
 
 export async function KpiGrid({ kpis }: { kpis: Kpis }) {
   // PERF-BUG #7: permissions (personal) are read inside a component that renders shared KPI data. Affects caching; a naive cache leaks one user's view to another (isolation gate).
   const user = await requireUser();
   const cards: Card[] = [
-    { id: 'revenue', label: 'Revenue', icon: 'mdi-cash-multiple', valueCents: kpis.revenueCents, cur: kpis.revenueCents, prev: kpis.revenuePrevCents, restricted: !user.permissions.revenue },
-    { id: 'orders', label: 'Orders', icon: 'mdi-cart-outline', value: kpis.orders.toLocaleString('en-IE'), cur: kpis.orders, prev: kpis.ordersPrev },
-    { id: 'aov', label: 'Avg. order value', icon: 'mdi-scale-balance', valueCents: kpis.aovCents, restricted: !user.permissions.revenue },
-    { id: 'refunds', label: 'Refund rate', icon: 'mdi-cash-refund', value: `${(kpis.refundRate * 100).toFixed(1)}%` },
+    { id: 'revenue', label: 'Revenue', icon: 'cash-multiple', valueCents: kpis.revenueCents, cur: kpis.revenueCents, prev: kpis.revenuePrevCents, restricted: !user.permissions.revenue },
+    { id: 'orders', label: 'Orders', icon: 'cart-outline', value: kpis.orders.toLocaleString('en-IE'), cur: kpis.orders, prev: kpis.ordersPrev },
+    { id: 'aov', label: 'Avg. order value', icon: 'scale-balance', valueCents: kpis.aovCents, restricted: !user.permissions.revenue },
+    { id: 'refunds', label: 'Refund rate', icon: 'cash-refund', value: `${(kpis.refundRate * 100).toFixed(1)}%` },
   ];
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="kpis">
@@ -31,11 +32,11 @@ async function KpiCard({ card }: { card: Card }) {
     <div className="panel kpi-card p-3 sm:p-4" data-testid={`kpi-${card.id}`}>
       <div className="flex items-center justify-between">
         <span className="muted text-xs font-medium tracking-wide uppercase">{card.label}</span>
-        <i className={`mdi ${card.icon} text-lg text-brand-500`} />
+        <Icon name={card.icon} className="text-lg text-brand-500" />
       </div>
       {card.restricted ? (
         <div className="mt-2 text-sm font-medium text-slate-400" data-testid="kpi-restricted">
-          <i className="mdi mdi-lock-outline" /> Restricted
+          <Icon name="lock-outline" /> Restricted
         </div>
       ) : (
         <>
@@ -49,7 +50,7 @@ async function KpiCard({ card }: { card: Card }) {
       )}
       {delta !== null && !card.restricted && (
         <div className={`mt-1 text-xs font-semibold ${delta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-          <i className={`mdi ${delta >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'}`} /> {(delta * 100).toFixed(1)}% <span className="font-normal text-slate-500">vs prev.</span>
+          <Icon name={delta >= 0 ? 'trending-up' : 'trending-down'} /> {(delta * 100).toFixed(1)}% <span className="font-normal text-slate-500">vs prev.</span>
         </div>
       )}
     </div>

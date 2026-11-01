@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { Campaign, Forecast, Order } from '@/lib/types';
 import { useEqualHeights } from './use-equal-heights';
+import { Icon } from '@/components/icon';
 
 const PALETTE = ['#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#64748b'];
 const eur = (cents: number) => `€${Math.round(cents / 100_000)}k`;
@@ -115,7 +116,7 @@ function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
       <ul className="space-y-2 text-sm">
         {campaigns.map((c) => (
           <li key={c.id} className="flex items-center justify-between gap-2">
-            <span><i className="mdi mdi-bullhorn-outline me-1 text-brand-500" />{c.name}</span>
+            <span><Icon name="bullhorn-outline" className="me-1 text-brand-500" />{c.name}</span>
             <span className="muted text-xs">{c.start.slice(5)} → {c.end.slice(5)}</span>
           </li>
         ))}

@@ -1,6 +1,3 @@
-/* PERF-BUG #14: a full CSS framework (~230 KB) and an icon font with ~7,000 glyphs (~300 KB CSS + 400 KB woff2) are render-blocking on every page; the app uses a handful of classes and ~25 icons. Affects S3, S12. */
-@import "bootstrap/dist/css/bootstrap.css" layer(vendor);
-@import "@mdi/font/css/materialdesignicons.css";
 @import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

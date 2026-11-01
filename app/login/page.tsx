@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LoginForm } from './login-form';
+import { Icon } from '@/components/icon';
 
 export const metadata: Metadata = { title: 'Sign in' };
 
@@ -8,7 +9,7 @@ export default function LoginPage() {
     <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-brand-50 to-slate-100 px-4 dark:from-slate-950 dark:to-slate-900">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-2 text-xl font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 text-white"><i className="mdi mdi-shopping" /></span>
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 text-white"><Icon name="shopping" /></span>
           Shoply Admin
         </div>
         <div className="panel p-6">
