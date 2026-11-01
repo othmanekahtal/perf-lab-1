@@ -103,13 +103,13 @@ Check IDs refer to `perf-budgets.json`. "Fix family" names the technique, not th
   - `chat-widget.js` (~260 KB) builds a phrase index at start-up (~250 ms).
   - Both are synchronous `<script>` tags in `<head>`, on another origin, with no preconnect. They block HTML parsing and the first render, then add long tasks.
   - Without its launcher slot, the chat widget inserts a bar at the top of the page, which shifts everything (S4).
-- **Symptoms / checks:** S3.3 (render-blocking bytes), S3.1 LCP, S13.1/S13.2 (TBT / long tasks), S4.1 CLS.
+- **Symptoms / checks:** S3.3 (render-blocking bytes), S3.1 LCP, S13.1/S13.2 (time to interactive / long tasks), S4.1 CLS.
 - **Fix family:**
   - `next/script` with `strategy="lazyOnload"` (or `afterInteractive`) for analytics, plus `preconnect` to the vendor origin.
   - A **facade** for the chat widget: a lightweight "Chat with us" button that loads the vendor script only on click, so most visitors never pay its cost.
   - The vendor's embed option (`<div id="hellodesk-launcher">` in a fixed-position slot), so the widget never shifts content.
   - A smaller DOM (#5) also makes the analytics snapshot cheap.
-- **Metrics:** render-blocking bytes, FCP/LCP, TBT, CLS, third-party main-thread time.
+- **Metrics:** render-blocking bytes, FCP/LCP, time to interactive, long tasks, CLS, third-party main-thread time.
 
 ## #11: Slow interactions (INP)
 
