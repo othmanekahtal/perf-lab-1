@@ -128,5 +128,5 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   send(res, 404, { error: 'not found' });
 });
 
-server.keepAliveTimeout = 30_000;
+server.keepAliveTimeout = 120_000;
 server.listen(PORT, () => console.log(`upstream API listening on http://localhost:${PORT}`));

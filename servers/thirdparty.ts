@@ -45,7 +45,7 @@ const analytics = `/*! InsightPulse Analytics SDK v8.14.2 | (c) InsightPulse Inc
 })();
 `;
 
-const phrases = Array.from({ length: 4000 }, () => [token(8), `${token(5)} ${token(9)} ${token(7)} ${token(4)}`]);
+const phrases = Array.from({ length: 6000 }, () => [token(8), `${token(5)} ${token(9)} ${token(7)} ${token(4)}`]);
 
 const chat = `/*! HelloDesk Chat Widget v3.2.0 | (c) HelloDesk Ltd.
  *

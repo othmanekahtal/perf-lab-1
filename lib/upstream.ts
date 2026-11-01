@@ -5,8 +5,18 @@ import type { Campaign, Forecast, FxRates, Inventory, Pricing, Recommendations }
 const BASE = process.env.UPSTREAM_URL ?? 'http://localhost:4001';
 const agent = new http.Agent({ keepAlive: true, maxSockets: 64 });
 
-/** Small JSON client for the commerce platform API (keep-alive agent, 10s timeout). */
-export function upstream<T>(path: string): Promise<T> {
+/** Small JSON client for the commerce platform API (keep-alive agent, 10s timeout, one retry on a reset connection). */
+export async function upstream<T>(path: string): Promise<T> {
+  try {
+    return await request<T>(path);
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    if (code === 'ECONNRESET' || code === 'EPIPE') return request<T>(path);
+    throw e;
+  }
+}
+
+function request<T>(path: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const req = http.get(`${BASE}${path}`, { agent, timeout: 10_000 }, (res) => {
       const chunks: Buffer[] = [];

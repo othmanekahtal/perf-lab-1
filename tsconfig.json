@@ -14,7 +14,7 @@
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
-    "incremental": true,
+    "incremental": false,
     "plugins": [{ "name": "next" }],
     "paths": { "@/*": ["./*"] }
   },

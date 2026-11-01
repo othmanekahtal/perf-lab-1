@@ -8,7 +8,7 @@ export function parseRenderModes(log: string): Record<string, RenderMode> {
   const modes: Record<string, RenderMode> = {};
   const clean = log.replace(/\x1b\[[0-9;]*m/g, '');
   for (const line of clean.split('\n')) {
-    const m = line.match(/^[┌├└│]\s+([○●◐ƒλ])\s+(\/\S*)/);
+    const m = line.match(/^[┌├└│][\s│├└┌]*([○●◐ƒλ])\s+(\/\S*)/); // nested lines look like "│ └ ◐ /orders/[id]"
     if (m) modes[m[2]] = SYMBOLS[m[1]] ?? 'unknown';
   }
   return modes;
