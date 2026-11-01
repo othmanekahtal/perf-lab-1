@@ -135,6 +135,8 @@ export async function scenarioA(ctx: Ctx, browser: Browser): Promise<RunResult> 
     metrics: {
       ttfb: v.ttfb, fcp: v.fcp, lcp: v.lcp, cls: v.cls,
       tbt: summary.tbt,
+      // The page is interactive once the main thread is done with long tasks after first paint.
+      interactiveMs: Math.max(v.fcp, ...loadPerf.longtasks.filter((t) => t.start >= v.fcp).map((t) => t.start + t.duration)),
       longTasks: loadPerf.longtasks.length,
       longTasksOver200: loadPerf.longtasks.filter((t) => t.duration > 200).length,
       forcedReflows: summary.forcedReflows,

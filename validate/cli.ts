@@ -79,9 +79,11 @@ if (e2ePass !== null) outcomes.push(gate('E2E', 'Functional tests (pnpm test:e2e
 const prev = loadHistory().at(-1);
 if (prev) {
   const regressions: string[] = [];
+  // Guard the metrics the budgets care about; informational metrics (e.g. async JS) may trade off freely.
+  const guarded = new Set(budgets.checks.map((c) => c.metric));
   for (const [key, s] of Object.entries(result.metrics)) {
     const def = METRICS[key];
-    if (!def || def.unit === 'bool') continue;
+    if (!def || def.unit === 'bool' || !guarded.has(key)) continue;
     if (deterministic && def.kind !== 'deterministic') continue;
     if (def.kind === 'timing' && (quick || runs < 5)) continue;
     const { verdict, delta } = judge(key, prev.metrics[key], { median: s.median, iqr: s.iqr });
@@ -92,8 +94,10 @@ if (prev) {
 }
 
 // ---------- report ----------
-const passed = outcomes.filter((o) => o.pass).length;
-const score = `${passed} / ${outcomes.length}`;
+const scored = outcomes.filter((o) => o.symptom !== 'gate');
+const gates = outcomes.filter((o) => o.symptom === 'gate');
+const passed = scored.filter((o) => o.pass).length;
+const score = `${passed} / ${scored.length}`;
 const pad = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s.padEnd(n));
 const fmt = (o: Outcome, v: number | null) => (v === null ? '–' : o.metric ? format(o.metric, v) : v >= 1 ? 'pass' : 'fail');
 
@@ -106,13 +110,14 @@ for (const o of outcomes) {
   const flags = [o.provisional ? 'provisional' : '', o.note && !o.pass ? o.note : ''].filter(Boolean).join(' · ');
   console.log(`| ${o.id} | ${o.symptom} | ${pad(o.metric ? METRICS[o.metric].label : o.title, 60)} | ${measured} | ${threshold} | ${icon}${flags ? ` ${flags}` : ''} |`);
 }
-console.log(`\nScore: ${score} checks passing${quick || runs < 5 ? ' (timing results are provisional: run `pnpm validate` for the real verdict)' : ''}`);
-const failedGates = outcomes.filter((o) => o.symptom === 'gate' && !o.pass);
+console.log(`\nScore: ${score} checks passing · gates: ${gates.map((g) => `${g.id} ${g.pass ? '✅' : '❌'}`).join(' ')}`);
+if (quick || runs < 5) console.log('Timing results are provisional: run a full `pnpm validate` for the real verdict.');
+const failedGates = gates.filter((o) => !o.pass);
 for (const g of failedGates) console.log(`❌ ${g.title}${g.note ? `\n   ${g.note}` : ''}`);
 
 mkdirSync(VALIDATION_DIR, { recursive: true });
 const file = join(VALIDATION_DIR, `${result.meta.date.slice(0, 19).replace(/[:T]/g, '-')}.json`);
 const git = gitInfo();
-if (!from) writeFileSync(file, JSON.stringify({ date: result.meta.date, commit: git.commit + (git.dirty ? '+dirty' : ''), branch: git.branch, mode: mode === 'full' ? 'full' : mode, runs, score, passed, total: outcomes.length, outcomes, environment: result.meta.environment, renderModes: result.renderModes }, null, 1));
+if (!from) writeFileSync(file, JSON.stringify({ date: result.meta.date, commit: git.commit + (git.dirty ? '+dirty' : ''), branch: git.branch, mode: mode === 'full' ? 'full' : mode, runs, score, passed, total: scored.length, gates: Object.fromEntries(gates.map((g) => [g.id, g.pass])), outcomes, environment: result.meta.environment, renderModes: result.renderModes }, null, 1));
 if (!from) console.log(`\nSaved ${file.replace(ROOT, '')}`);
 process.exit(outcomes.every((o) => o.pass) ? 0 : 1);

@@ -54,6 +54,6 @@ for (const c of budgets.checks) {
   c.margin = margin;
 }
 budgets.margins = Object.fromEntries(Object.entries(MARGINS).map(([k, v]) => [k, v.describe]));
-budgets.reference = runs.map((r, i) => ({ file: files[i].replace(`${ROOT}`, ''), commit: r.meta.git.commit, branch: r.meta.git.branch, date: r.meta.date }));
+budgets.reference = runs.map((r, i) => ({ file: `reference-solution:perf-results/${files[i].split('/').pop()}`, commit: r.meta.git.commit, branch: r.meta.git.branch, date: r.meta.date }));
 writeFileSync(budgetsPath, JSON.stringify(budgets, null, 2) + '\n');
 console.log(`Updated ${budgets.checks.length} thresholds from ${runs.length} reference run(s).`);

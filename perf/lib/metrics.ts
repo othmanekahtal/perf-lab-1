@@ -17,6 +17,7 @@ export const METRICS: Record<string, MetricDef> = {
   fcp: { label: 'FCP (dashboard, cold)', unit: 'ms', scenario: 'A', better: 'lower', kind: 'timing', floor: 75 },
   lcp: { label: 'LCP (dashboard, cold)', unit: 'ms', scenario: 'A', better: 'lower', kind: 'timing', floor: 100 },
   cls: { label: 'CLS (dashboard load)', unit: '', scenario: 'A', better: 'lower', kind: 'timing', floor: 0.025 },
+  interactiveMs: { label: 'Time to interactive (end of the last long task after first paint)', unit: 'ms', scenario: 'A', better: 'lower', kind: 'timing', floor: 100 },
   tbt: { label: 'TBT (dashboard load)', unit: 'ms', scenario: 'A', better: 'lower', kind: 'timing', floor: 50 },
   longTasks: { label: 'Long tasks (load)', unit: 'count', scenario: 'A', better: 'lower', kind: 'timing', floor: 1 },
   longTasksOver200: { label: 'Long tasks > 200 ms (load)', unit: 'count', scenario: 'A', better: 'lower', kind: 'timing', floor: 1 },

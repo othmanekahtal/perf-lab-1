@@ -72,6 +72,8 @@ The grader. It answers one question: *is this symptom fixed, and did I break any
 | `pnpm validate -- --symptom S4 --quick` | The same with 3 runs. Timing results are marked *provisional*. |
 | `pnpm validate -- --quick` | Every check, 3 runs |
 | `pnpm validate -- --deterministic` | Only checks that don't depend on timing: bytes, request counts, upstream calls, cache headers, rendering modes, heap growth, correctness. Stable across machines. |
+| `pnpm validate -- --from perf-results/x.json` | Re-grade a saved `pnpm perf` result without measuring again (no e2e gate) |
+| `pnpm validate:self-test` | Proves the grader works both ways: the baseline must fail every S/M check with all gates green, and the reference solution must pass everything 3 times in a row (about 1.5 h; checks out both in temporary worktrees) |
 
 Check types:
 
@@ -79,7 +81,9 @@ Check types:
 - **M1, M2**: mystery checks. They fail on the baseline and only show a metric and a threshold.
 - **Gates**: freshness (F), isolation (G) and `pnpm test:e2e`. If one fails, the validation fails.
 - **B1…B10**: final targets for the whole app.
-- **REG**: the regression guard. It fails if any metric got worse than the last PERF.md row beyond noise, even if the symptom you targeted improved.
+- **REG**: the regression guard. It fails if any budgeted metric got worse than the last PERF.md row beyond noise (IQR-based), even if the symptom you targeted improved.
+
+The score counts the S, M and B checks: `Score: X / 49 checks passing · gates: F ✅ G ✅ E2E ✅ REG ✅`. The exit code is 1 if any check or gate fails.
 
 Thresholds live in `perf-budgets.json`. They were derived from a reference implementation (see PERF.md). **Don't edit them.** Results go to `validation-results/<date>.json`, and the final line reads `Score: X / Y checks passing`.
 

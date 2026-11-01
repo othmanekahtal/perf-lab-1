@@ -96,15 +96,75 @@ The same list as [LAB.md](LAB.md):
 The global budgets for the whole app. Each threshold was derived from a reference implementation that fixes every problem, measured in 3 full runs on the machine above. The reference value is the worst median across those runs. The margin rules:
 
 <!-- margins:start -->
+- **timing**: ×1.5 of the reference plus an allowance of twice the metric's noise floor (e.g. +100 ms for TTFB, +50 ms for INP, +0.05 for CLS); counts: ×1.5 + 1; throughput: ÷1.5
+- **bytes**: +10% of the reference + 5 KB
+- **count**: reference + 1
+- **heap**: ×1.25 of the reference + 3 MB
+- **ratio**: reference − 0.02
+- **exact**: exact
 <!-- margins:end -->
 
 <!-- targets:start -->
+| Check | Measures | Scenario | Kind | Reference value | Margin | Threshold |
+|---|---|---|---|---:|---|---:|
+| B1 | TTFB (dashboard, cold) | A | timing | 4 ms | timing | <= 106 ms |
+| B2 | LCP (dashboard, cold) | A | timing | 480 ms | timing | <= 920 ms |
+| B3 | INP (search, filter, sort) | D | timing | 48 ms | timing | <= 122 ms |
+| B4 | CLS (dashboard load) | A | timing | 0.000 | timing | <= 0.050 |
+| B5 | Time to interactive (end of the last long task after first paint) | A | timing | 1868 ms | timing | <= 3002 ms |
+| B6 | JS heap growth after 20 soft navigations | E | deterministic | 2.3 MB | heap | <= 5.9 MB |
+| B7 | Transferred on warm visit | B | deterministic | 94 KB | bytes | <= 108 KB |
+| B8 | Upstream calls per dashboard view (warm) | B | deterministic | 0 | count | <= 1 |
+| B9 | p95 latency / under load | H | timing | 219 ms | timing | <= 429 ms |
+| B10 | Soft nav total | C | timing | 890 ms | timing | <= 1636 ms |
 <!-- targets:end -->
 
 <details>
 <summary>All validator checks (symptoms and mystery checks)</summary>
 
 <!-- checks:start -->
+| Check | Measures | Scenario | Kind | Reference value | Margin | Threshold |
+|---|---|---|---|---:|---|---:|
+| S1.1 | Dashboard starts responding quickly on a cold load | A | timing | 4 ms | timing | <= 106 ms |
+| S1.2 | Products page starts responding quickly | H | timing | 3 ms | timing | <= 44 ms |
+| S1.3 | Settings page starts responding quickly | H | timing | 2 ms | timing | <= 44 ms |
+| S1.4 | Key pages can be served from a prerendered shell | build | deterministic | 6 | exact | >= 6 |
+| S2.1 | Dashboard shows first content quickly (cold) | A | timing | 480 ms | timing | <= 870 ms |
+| S2.2 | Dashboard shows first content quickly (repeat visit) | B | timing | 224 ms | timing | <= 486 ms |
+| S3.1 | Dashboard main content appears quickly | A | timing | 480 ms | timing | <= 920 ms |
+| S3.2 | Products page main content appears quickly | D | timing | 824 ms | timing | <= 1436 ms |
+| S3.3 | Little must download before the first render | A | deterministic | 7 KB | bytes | <= 13 KB |
+| S4.1 | Dashboard layout is stable while loading | A | timing | 0.000 | timing | <= 0.050 |
+| S5.1 | Search, filter and sort respond quickly | D | timing | 48 ms | timing | <= 122 ms |
+| S5.2 | No frozen frames while searching, filtering and sorting | D | timing | 0 | timing | <= 1 |
+| S6.1 | Few synchronous layouts while loading, scrolling and resizing | A | timing | 227 | timing | <= 345.5 |
+| S6.2 | Main thread stays free while scrolling and resizing | A | timing | 165 ms | timing | <= 288 ms |
+| S6.3 | An idle dashboard does not keep re-laying out | A | timing | 0.499 | timing | <= 4.7 |
+| S6.4 | Total layout work on the dashboard is small | A | timing | 105 ms | timing | <= 198 ms |
+| S7.1 | A repeat visit downloads little | B | deterministic | 94 KB | bytes | <= 108 KB |
+| S7.2 | Static files can be reused from the browser cache | A | deterministic | 100% | ratio | >= 98% |
+| S8.1 | Opening a product from the list is quick | C | timing | 512 ms | timing | <= 919 ms |
+| S8.2 | Opening the products list is quick | C | timing | 356 ms | timing | <= 684 ms |
+| S8.3 | Opening the products list transfers little | C | deterministic | 27 KB | bytes | <= 35 KB |
+| S9.1 | Memory stays flat across 20 navigations | E | deterministic | 2.3 MB | heap | <= 5.9 MB |
+| S10.1 | Dashboard throughput under load | H | timing | 61.3/s | timing | >= 40.9/s |
+| S10.2 | Dashboard p95 latency under load | H | timing | 219 ms | timing | <= 429 ms |
+| S10.3 | Product pages throughput under load | H | timing | 85.6/s | timing | >= 57.1/s |
+| S10.4 | Static files are served quickly | H | timing | 2 ms | timing | <= 5 ms |
+| S11.1 | Upstream calls per dashboard view (new browser) | A | deterministic | 0 | count | <= 1 |
+| S11.2 | Upstream calls per dashboard view (repeat visit) | B | deterministic | 0 | count | <= 1 |
+| S11.3 | Upstream calls per product view | C | deterministic | 0 | count | <= 1 |
+| S12.1 | Dashboard HTML is small | A | deterministic | 33 KB | bytes | <= 42 KB |
+| S12.2 | Dashboard embedded data is small | A | deterministic | 224 KB | bytes | <= 251 KB |
+| S12.3 | Products page HTML is small | D | deterministic | 20 KB | bytes | <= 27 KB |
+| S12.4 | Stylesheets are small | A | deterministic | 8 KB | bytes | <= 13 KB |
+| S12.5 | Fonts are small | A | deterministic | 0 KB | bytes | <= 5 KB |
+| S13.1 | The page responds soon after it appears | A | timing | 1868 ms | timing | <= 3002 ms |
+| S13.2 | No very long tasks during start-up | A | timing | 1 | timing | <= 2.5 |
+| S14.1 | Dashboard is quick right after saving an order | F | timing | 380 ms | timing | <= 670 ms |
+| S14.2 | Upstream calls for the dashboard right after saving an order | F | deterministic | 4 | count | <= 5 |
+| M1 | Mystery check 1: p95 latency /orders?status&page under load | H | timing | 140 ms | timing | <= 260 ms |
+| M2 | Mystery check 2: First-party HTML/JS/CSS/data transferred (cold) | A | deterministic | 340 KB | bytes | <= 379 KB |
 <!-- checks:end -->
 
 </details>

@@ -17,7 +17,8 @@
     "perf": "node perf/cli.ts",
     "validate": "node validate/cli.ts",
     "test:e2e": "node scripts/e2e.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate:self-test": "node validate/self-test.ts"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

@@ -1,7 +1,33 @@
 {
   "$comment": "Thresholds are derived from reference measurements by validate/derive.ts. Do not edit thresholds by hand.",
-  "margins": {},
-  "reference": null,
+  "margins": {
+    "timing": "timing: ×1.5 of the reference plus an allowance of twice the metric's noise floor (e.g. +100 ms for TTFB, +50 ms for INP, +0.05 for CLS); counts: ×1.5 + 1; throughput: ÷1.5",
+    "bytes": "bytes: +10% of the reference + 5 KB",
+    "count": "counts (upstream calls, requests): reference + 1",
+    "heap": "heap: ×1.25 of the reference + 3 MB",
+    "ratio": "ratios: reference − 0.02",
+    "exact": "route rendering modes: exact"
+  },
+  "reference": [
+    {
+      "file": "reference-solution:perf-results/2026-11-01-02-17-19-reference-run-1.json",
+      "commit": "7496748",
+      "branch": "reference-solution",
+      "date": "2026-11-01T02:17:19.333Z"
+    },
+    {
+      "file": "reference-solution:perf-results/2026-11-01-02-25-35-reference-run-2.json",
+      "commit": "7496748",
+      "branch": "reference-solution",
+      "date": "2026-11-01T02:25:35.531Z"
+    },
+    {
+      "file": "reference-solution:perf-results/2026-11-01-02-33-51-reference-run-3.json",
+      "commit": "7496748",
+      "branch": "reference-solution",
+      "date": "2026-11-01T02:33:51.992Z"
+    }
+  ],
   "checks": [
     {
       "id": "S1.1",
@@ -10,9 +36,10 @@
       "metric": "ttfb",
       "op": "<=",
       "title": "Dashboard starts responding quickly on a cold load",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 105.85,
+      "reference": 3.9,
+      "margin": "timing"
     },
     {
       "id": "S1.2",
@@ -21,9 +48,10 @@
       "metric": "serverTtfb_products",
       "op": "<=",
       "title": "Products page starts responding quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 44.065,
+      "reference": 2.71,
+      "margin": "timing"
     },
     {
       "id": "S1.3",
@@ -32,9 +60,10 @@
       "metric": "serverTtfb_settings",
       "op": "<=",
       "title": "Settings page starts responding quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 43.555,
+      "reference": 2.37,
+      "margin": "timing"
     },
     {
       "id": "S1.4",
@@ -43,9 +72,10 @@
       "metric": "prerenderedRoutes",
       "op": ">=",
       "title": "Key pages can be served from a prerendered shell",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 6,
+      "reference": 6,
+      "margin": "exact"
     },
     {
       "id": "S2.1",
@@ -54,9 +84,10 @@
       "metric": "fcp",
       "op": "<=",
       "title": "Dashboard shows first content quickly (cold)",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 870,
+      "reference": 480,
+      "margin": "timing"
     },
     {
       "id": "S2.2",
@@ -65,9 +96,10 @@
       "metric": "warmFcp",
       "op": "<=",
       "title": "Dashboard shows first content quickly (repeat visit)",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 486,
+      "reference": 224,
+      "margin": "timing"
     },
     {
       "id": "S3.1",
@@ -76,9 +108,10 @@
       "metric": "lcp",
       "op": "<=",
       "title": "Dashboard main content appears quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 920,
+      "reference": 480,
+      "margin": "timing"
     },
     {
       "id": "S3.2",
@@ -87,9 +120,10 @@
       "metric": "productsLcp",
       "op": "<=",
       "title": "Products page main content appears quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 1436,
+      "reference": 824,
+      "margin": "timing"
     },
     {
       "id": "S3.3",
@@ -98,9 +132,10 @@
       "metric": "renderBlockingKB",
       "op": "<=",
       "title": "Little must download before the first render",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 13.227,
+      "reference": 7.479,
+      "margin": "bytes"
     },
     {
       "id": "S4.1",
@@ -109,9 +144,10 @@
       "metric": "cls",
       "op": "<=",
       "title": "Dashboard layout is stable while loading",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 0.05,
+      "reference": 0,
+      "margin": "timing"
     },
     {
       "id": "S5.1",
@@ -120,9 +156,10 @@
       "metric": "inp",
       "op": "<=",
       "title": "Search, filter and sort respond quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 122,
+      "reference": 48,
+      "margin": "timing"
     },
     {
       "id": "S5.2",
@@ -131,9 +168,10 @@
       "metric": "interactionLongTasksOver200",
       "op": "<=",
       "title": "No frozen frames while searching, filtering and sorting",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 1,
+      "reference": 0,
+      "margin": "timing"
     },
     {
       "id": "S6.1",
@@ -142,9 +180,10 @@
       "metric": "forcedReflows",
       "op": "<=",
       "title": "Few synchronous layouts while loading, scrolling and resizing",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 345.5,
+      "reference": 227,
+      "margin": "timing"
     },
     {
       "id": "S6.2",
@@ -153,9 +192,10 @@
       "metric": "scrollScriptMs",
       "op": "<=",
       "title": "Main thread stays free while scrolling and resizing",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 287.81,
+      "reference": 165.207,
+      "margin": "timing"
     },
     {
       "id": "S6.3",
@@ -164,9 +204,10 @@
       "metric": "idleLayoutsPerSec",
       "op": "<=",
       "title": "An idle dashboard does not keep re-laying out",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 4.749,
+      "reference": 0.499,
+      "margin": "timing"
     },
     {
       "id": "S6.4",
@@ -175,9 +216,10 @@
       "metric": "layoutMs",
       "op": "<=",
       "title": "Total layout work on the dashboard is small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 198.166,
+      "reference": 105.444,
+      "margin": "timing"
     },
     {
       "id": "S7.1",
@@ -186,9 +228,10 @@
       "metric": "warmTransferKB",
       "op": "<=",
       "title": "A repeat visit downloads little",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 108.012,
+      "reference": 93.647,
+      "margin": "bytes"
     },
     {
       "id": "S7.2",
@@ -197,9 +240,10 @@
       "metric": "staticCacheableRatio",
       "op": ">=",
       "title": "Static files can be reused from the browser cache",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 0.98,
+      "reference": 1,
+      "margin": "ratio"
     },
     {
       "id": "S8.1",
@@ -208,9 +252,10 @@
       "metric": "navDetailMs",
       "op": "<=",
       "title": "Opening a product from the list is quick",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 918.6,
+      "reference": 512.4,
+      "margin": "timing"
     },
     {
       "id": "S8.2",
@@ -219,9 +264,10 @@
       "metric": "navProductsMs",
       "op": "<=",
       "title": "Opening the products list is quick",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 683.7,
+      "reference": 355.8,
+      "margin": "timing"
     },
     {
       "id": "S8.3",
@@ -230,9 +276,10 @@
       "metric": "rscNavProductsKB",
       "op": "<=",
       "title": "Opening the products list transfers little",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 35.135,
+      "reference": 27.396,
+      "margin": "bytes"
     },
     {
       "id": "S9.1",
@@ -241,9 +288,10 @@
       "metric": "heapGrowthMB",
       "op": "<=",
       "title": "Memory stays flat across 20 navigations",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 5.922,
+      "reference": 2.337,
+      "margin": "heap"
     },
     {
       "id": "S10.1",
@@ -252,9 +300,10 @@
       "metric": "rps_dashboard",
       "op": ">=",
       "title": "Dashboard throughput under load",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 40.867,
+      "reference": 61.3,
+      "margin": "timing"
     },
     {
       "id": "S10.2",
@@ -263,9 +312,10 @@
       "metric": "p95_dashboard",
       "op": "<=",
       "title": "Dashboard p95 latency under load",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 429.137,
+      "reference": 219.425,
+      "margin": "timing"
     },
     {
       "id": "S10.3",
@@ -274,9 +324,10 @@
       "metric": "rps_products",
       "op": ">=",
       "title": "Product pages throughput under load",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 57.067,
+      "reference": 85.6,
+      "margin": "timing"
     },
     {
       "id": "S10.4",
@@ -285,9 +336,10 @@
       "metric": "serverStaticMs",
       "op": "<=",
       "title": "Static files are served quickly",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 4.625,
+      "reference": 1.75,
+      "margin": "timing"
     },
     {
       "id": "S11.1",
@@ -296,9 +348,10 @@
       "metric": "upstreamCallsCold",
       "op": "<=",
       "title": "Upstream calls per dashboard view (new browser)",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 1,
+      "reference": 0,
+      "margin": "count"
     },
     {
       "id": "S11.2",
@@ -307,9 +360,10 @@
       "metric": "upstreamCallsWarm",
       "op": "<=",
       "title": "Upstream calls per dashboard view (repeat visit)",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 1,
+      "reference": 0,
+      "margin": "count"
     },
     {
       "id": "S11.3",
@@ -318,9 +372,10 @@
       "metric": "upstreamCallsDetail",
       "op": "<=",
       "title": "Upstream calls per product view",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 1,
+      "reference": 0,
+      "margin": "count"
     },
     {
       "id": "S12.1",
@@ -329,9 +384,10 @@
       "metric": "htmlKB",
       "op": "<=",
       "title": "Dashboard HTML is small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 41.818,
+      "reference": 33.471,
+      "margin": "bytes"
     },
     {
       "id": "S12.2",
@@ -340,9 +396,10 @@
       "metric": "rscInlineKB",
       "op": "<=",
       "title": "Dashboard embedded data is small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 251.401,
+      "reference": 224.001,
+      "margin": "bytes"
     },
     {
       "id": "S12.3",
@@ -351,9 +408,10 @@
       "metric": "productsHtmlKB",
       "op": "<=",
       "title": "Products page HTML is small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 26.905,
+      "reference": 19.914,
+      "margin": "bytes"
     },
     {
       "id": "S12.4",
@@ -362,9 +420,10 @@
       "metric": "cssKB",
       "op": "<=",
       "title": "Stylesheets are small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 13.317,
+      "reference": 7.561,
+      "margin": "bytes"
     },
     {
       "id": "S12.5",
@@ -373,20 +432,22 @@
       "metric": "fontKB",
       "op": "<=",
       "title": "Fonts are small",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 5,
+      "reference": 0,
+      "margin": "bytes"
     },
     {
       "id": "S13.1",
       "symptom": "S13",
       "scenario": "A",
-      "metric": "tbt",
+      "metric": "interactiveMs",
       "op": "<=",
-      "title": "Main thread is not blocked during start-up",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "title": "The page responds soon after it appears",
+      "kind": "timing",
+      "threshold": 3001.7,
+      "reference": 1867.8,
+      "margin": "timing"
     },
     {
       "id": "S13.2",
@@ -395,9 +456,10 @@
       "metric": "longTasksOver200",
       "op": "<=",
       "title": "No very long tasks during start-up",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 2.5,
+      "reference": 1,
+      "margin": "timing"
     },
     {
       "id": "S14.1",
@@ -406,9 +468,10 @@
       "metric": "postEditNavMs",
       "op": "<=",
       "title": "Dashboard is quick right after saving an order",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 670.15,
+      "reference": 380.1,
+      "margin": "timing"
     },
     {
       "id": "S14.2",
@@ -417,9 +480,10 @@
       "metric": "postEditUpstreamCalls",
       "op": "<=",
       "title": "Upstream calls for the dashboard right after saving an order",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 5,
+      "reference": 4,
+      "margin": "count"
     },
     {
       "id": "M1",
@@ -428,9 +492,10 @@
       "metric": "p95_orders",
       "op": "<=",
       "title": "Mystery check 1",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 259.696,
+      "reference": 139.797,
+      "margin": "timing"
     },
     {
       "id": "M2",
@@ -439,9 +504,10 @@
       "metric": "firstPartyTextKB",
       "op": "<=",
       "title": "Mystery check 2",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 378.856,
+      "reference": 339.869,
+      "margin": "bytes"
     },
     {
       "id": "B1",
@@ -450,9 +516,10 @@
       "metric": "ttfb",
       "op": "<=",
       "title": "Final target: TTFB",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 105.85,
+      "reference": 3.9,
+      "margin": "timing"
     },
     {
       "id": "B2",
@@ -461,9 +528,10 @@
       "metric": "lcp",
       "op": "<=",
       "title": "Final target: LCP",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 920,
+      "reference": 480,
+      "margin": "timing"
     },
     {
       "id": "B3",
@@ -472,9 +540,10 @@
       "metric": "inp",
       "op": "<=",
       "title": "Final target: INP",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 122,
+      "reference": 48,
+      "margin": "timing"
     },
     {
       "id": "B4",
@@ -483,20 +552,22 @@
       "metric": "cls",
       "op": "<=",
       "title": "Final target: CLS",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 0.05,
+      "reference": 0,
+      "margin": "timing"
     },
     {
       "id": "B5",
       "symptom": "global",
       "scenario": "A",
-      "metric": "tbt",
+      "metric": "interactiveMs",
       "op": "<=",
-      "title": "Final target: TBT",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "title": "Final target: time to interactive",
+      "kind": "timing",
+      "threshold": 3001.7,
+      "reference": 1867.8,
+      "margin": "timing"
     },
     {
       "id": "B6",
@@ -505,9 +576,10 @@
       "metric": "heapGrowthMB",
       "op": "<=",
       "title": "Final target: heap growth",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 5.922,
+      "reference": 2.337,
+      "margin": "heap"
     },
     {
       "id": "B7",
@@ -516,9 +588,10 @@
       "metric": "warmTransferKB",
       "op": "<=",
       "title": "Final target: warm-visit transfer",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 108.012,
+      "reference": 93.647,
+      "margin": "bytes"
     },
     {
       "id": "B8",
@@ -527,9 +600,10 @@
       "metric": "upstreamCallsWarm",
       "op": "<=",
       "title": "Final target: upstream calls per view",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "deterministic",
+      "threshold": 1,
+      "reference": 0,
+      "margin": "count"
     },
     {
       "id": "B9",
@@ -538,9 +612,10 @@
       "metric": "p95_dashboard",
       "op": "<=",
       "title": "Final target: server p95",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 429.137,
+      "reference": 219.425,
+      "margin": "timing"
     },
     {
       "id": "B10",
@@ -549,9 +624,10 @@
       "metric": "navTotalMs",
       "op": "<=",
       "title": "Final target: soft navigation",
-      "kind": null,
-      "threshold": null,
-      "reference": null
+      "kind": "timing",
+      "threshold": 1635.6,
+      "reference": 890.4,
+      "margin": "timing"
     }
   ]
 }
