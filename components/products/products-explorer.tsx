@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
 import { money, productImage } from '@/lib/format';
 import type { Product } from '@/lib/types';
-import { effectivePrice, relevance, sortProducts, type SortKey } from './search';
+import { buildIndex, relevance, sortIndexed, tokens, type Indexed, type SortKey } from './search';
 import { Icon } from '@/components/icon';
 
 const PAGE_SIZE = 24;
@@ -13,35 +13,58 @@ const CATEGORIES = ['Audio', 'Cameras', 'Computers', 'Gaming', 'Home', 'Kitchen'
 
 type Filters = { query: string; categories: string[]; brand: string; inStock: boolean; sort: SortKey };
 
-function compute(products: Product[], f: Filters) {
-  const scored = [];
-  for (const p of products) {
-    if (f.categories.length && !f.categories.includes(p.category)) continue;
-    if (f.brand && p.brand !== f.brand) continue;
-    if (f.inStock && p.stock === 0) continue;
-    const score = relevance(p, f.query);
-    if (f.query && score < 0.55) continue;
-    scored.push({ ...p, score });
-  }
-  return sortProducts(scored, f.sort);
+type Scored = Indexed & { score: number };
+
+function matches(item: Indexed, f: Filters) {
+  const p = item.product;
+  return (!f.categories.length || f.categories.includes(p.category)) && (!f.brand || p.brand === f.brand) && (!f.inStock || p.stock > 0);
 }
+
+/** Lets the browser handle input and paint between chunks of work. */
+function yieldToMain(): Promise<void> {
+  const s = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  return s?.yield ? s.yield() : new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+const CHUNK = 200;
 
 export function ProductsExplorer({ products }: { products: Product[] }) {
   const [filters, setFilters] = useState<Filters>({ query: '', categories: [], brand: '', inStock: false, sort: 'relevance' });
-  const [results, setResults] = useState<Product[]>(() => compute(products, filters));
+  const index = useMemo(() => buildIndex(products), [products]);
+  const [results, setResults] = useState<Scored[]>(() => sortIndexed(index.map((i) => ({ ...i, score: 1 })), 'relevance'));
   const [page, setPage] = useState(1);
+  const [, startTransition] = useTransition();
+  const run = useRef(0);
   const brands = [...new Set(products.map((p) => p.brand))].sort();
 
-  // PERF-BUG #11: the handler recomputes fuzzy relevance for 5,000 products and re-sorts synchronously; one keystroke = one long task. Fix family: yield to the main thread (scheduler.yield/chunking/transitions). Affects S5.
-  const update = (patch: Partial<Filters>) => {
+  const update = async (patch: Partial<Filters>) => {
     const next = { ...filters, ...patch };
-    setFilters(next);
-    setResults(compute(products, next));
-    setPage(1);
+    setFilters(next); // the input and the pressed state update right away
+    const id = ++run.current;
+    const query = tokens(next.query);
+    const scored: Scored[] = [];
+    for (let i = 0; i < index.length; i++) {
+      if (i % CHUNK === 0) {
+        await yieldToMain();
+        if (id !== run.current) return; // a newer keystroke/click superseded this run
+      }
+      const item = index[i];
+      if (!matches(item, next)) continue;
+      const score = relevance(item, query);
+      if (query.length && score < 0.55) continue;
+      scored.push({ ...item, score });
+    }
+    await yieldToMain();
+    if (id !== run.current) return;
+    const sorted = sortIndexed(scored, next.sort);
+    startTransition(() => {
+      setResults(sorted);
+      setPage(1);
+    });
   };
 
   const pages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
-  const visible = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const visible = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((r) => ({ ...r.product, shelfPrice: r.price }));
 
   return (
     <div className="space-y-4" data-testid="products-explorer">
@@ -110,7 +133,7 @@ export function ProductsExplorer({ products }: { products: Product[] }) {
                 <div className="muted text-xs">{p.brand} · {p.category}</div>
                 <div className="line-clamp-2 text-sm font-medium" data-testid="product-name">{p.name}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold tabular-nums" data-testid="product-price">{money(effectivePrice(p))}</span>
+                  <span className="font-semibold tabular-nums" data-testid="product-price">{money(p.shelfPrice)}</span>
                   <span className="text-xs text-amber-600"><Icon name="star" /> {p.rating.toFixed(1)}</span>
                 </div>
                 {p.stock === 0 ? <span className="chip border-transparent bg-red-600 text-white">Out of stock</span> : <span className="chip border-transparent bg-emerald-600 text-white">{p.stock} in stock</span>}

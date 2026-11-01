@@ -2,37 +2,24 @@ import type { Product } from '@/lib/types';
 
 export type SortKey = 'relevance' | 'name' | 'price-asc' | 'price-desc' | 'rating' | 'newest';
 
+const collator = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
+
 function bigrams(word: string) {
   const out = new Set<string>();
   for (let i = 0; i < word.length - 1; i++) out.add(word.slice(i, i + 2));
   return out;
 }
 
-/** Dice coefficient between two words, tolerant to typos. */
-function similarity(a: string, b: string) {
-  if (a === b) return 1;
-  const A = bigrams(a), B = bigrams(b);
-  if (!A.size || !B.size) return 0;
+/** Dice coefficient between two bigram sets, tolerant to typos. */
+function similarity(a: Set<string>, b: Set<string>) {
+  if (!a.size || !b.size) return 0;
   let shared = 0;
-  A.forEach((g) => { if (B.has(g)) shared++; });
-  return (2 * shared) / (A.size + B.size);
+  a.forEach((g) => { if (b.has(g)) shared++; });
+  return (2 * shared) / (a.size + b.size);
 }
 
-function tokens(text: string) {
+export function tokens(text: string) {
   return text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-}
-
-export function relevance(product: Product, query: string) {
-  const q = tokens(query);
-  if (!q.length) return 1;
-  const words = tokens(`${product.name} ${product.brand} ${product.category} ${product.description} ${product.tags}`);
-  let score = 0;
-  for (const term of q) {
-    let best = 0;
-    for (const w of words) best = Math.max(best, similarity(term, w) * (product.name.toLowerCase().includes(w) ? 1.5 : 1));
-    score += best;
-  }
-  return score / q.length;
 }
 
 /** Shelf price including the bulky-item shipping surcharge and the "value" promo. */
@@ -43,22 +30,43 @@ export function effectivePrice(p: Product) {
   return p.price_cents + (bulky ? 499 : 0) - (tags.includes('value') ? 100 : 0);
 }
 
-// PERF-BUG #11: comparator creates a new Intl.Collator and JSON.parses specs on every comparison (n log n times). Affects S5.
-export function sortProducts(list: (Product & { score: number })[], sort: SortKey) {
+export type Indexed = { product: Product; price: number; created: number; words: { word: string; grams: Set<string>; inName: boolean }[] };
+
+/** Everything the search and the sorts need, computed once per product list. */
+export function buildIndex(products: Product[]): Indexed[] {
+  return products.map((p) => {
+    const name = p.name.toLowerCase();
+    const unique = [...new Set(tokens(`${p.name} ${p.brand} ${p.category} ${p.description} ${p.tags}`))];
+    return {
+      product: p,
+      price: effectivePrice(p),
+      created: Date.parse(p.created_at),
+      words: unique.map((word) => ({ word, grams: bigrams(word), inName: name.includes(word) })),
+    };
+  });
+}
+
+export function relevance(item: Indexed, query: string[]) {
+  if (!query.length) return 1;
+  let score = 0;
+  for (const term of query) {
+    const grams = bigrams(term);
+    let best = 0;
+    for (const w of item.words) best = Math.max(best, (w.word === term ? 1 : similarity(grams, w.grams)) * (w.inName ? 1.5 : 1));
+    score += best;
+  }
+  return score / query.length;
+}
+
+export function sortIndexed(list: (Indexed & { score: number })[], sort: SortKey) {
   return [...list].sort((a, b) => {
     switch (sort) {
-      case 'name':
-        return new Intl.Collator('en', { sensitivity: 'base', numeric: true }).compare(a.name, b.name);
-      case 'price-asc':
-        return effectivePrice(a) - effectivePrice(b);
-      case 'price-desc':
-        return effectivePrice(b) - effectivePrice(a);
-      case 'rating':
-        return b.rating - a.rating || new Intl.Collator('en').compare(a.name, b.name);
-      case 'newest':
-        return Date.parse(b.created_at) - Date.parse(a.created_at);
-      default:
-        return b.score - a.score || new Intl.Collator('en').compare(a.name, b.name);
+      case 'name': return collator.compare(a.product.name, b.product.name);
+      case 'price-asc': return a.price - b.price;
+      case 'price-desc': return b.price - a.price;
+      case 'rating': return b.product.rating - a.product.rating || collator.compare(a.product.name, b.product.name);
+      case 'newest': return b.created - a.created;
+      default: return b.score - a.score || collator.compare(a.product.name, b.product.name);
     }
   });
 }
