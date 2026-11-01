@@ -1,5 +1,6 @@
 import 'server-only';
 import http from 'node:http';
+import { cache } from 'react';
 import type { Campaign, Forecast, FxRates, Inventory, Pricing, Recommendations } from './types';
 
 const BASE = process.env.UPSTREAM_URL ?? 'http://localhost:4001';
@@ -36,12 +37,13 @@ function request<T>(path: string): Promise<T> {
   });
 }
 
-export const getFxRates = () => upstream<FxRates>('/v1/fx');
+// Deduplicated per request: every component that needs FX shares one call.
+export const getFxRates = cache(() => upstream<FxRates>('/v1/fx'));
 export const getForecast = (days: number) => upstream<Forecast>(`/v1/forecast?days=${days}`);
 export const getCampaigns = () => upstream<{ campaigns: Campaign[] }>('/v1/campaigns').then((r) => r.campaigns);
 export const getPricing = (productId: number) => upstream<Pricing>(`/v1/pricing/${productId}`);
 export const getInventory = (productId: number) => upstream<Inventory>(`/v1/inventory/${productId}`);
 export const getPricingBatch = (ids: number[]) => upstream<{ items: Pricing[] }>(`/v1/pricing?ids=${ids.join(',')}`).then((r) => r.items);
 export const getInventoryBatch = (ids: number[]) => upstream<{ items: Inventory[] }>(`/v1/inventory?ids=${ids.join(',')}`).then((r) => r.items);
-export const getLowStock = () => upstream<{ count: number; items: Inventory[] }>('/v1/inventory/low-stock');
+export const getLowStock = cache(() => upstream<{ count: number; items: Inventory[] }>('/v1/inventory/low-stock'));
 export const getRecommendations = (username: string) => upstream<Recommendations>(`/v1/recommendations?user=${encodeURIComponent(username)}`);

@@ -25,7 +25,6 @@ export async function KpiGrid({ kpis }: { kpis: Kpis }) {
 }
 
 async function KpiCard({ card }: { card: Card }) {
-  // PERF-BUG #3: no request deduplication, each card fetches the same FX rates again (4 extra calls per view). Affects S11.
   const fx = await getFxRates();
   const delta = card.cur !== undefined && card.prev ? (card.cur - card.prev) / card.prev : null;
   return (
