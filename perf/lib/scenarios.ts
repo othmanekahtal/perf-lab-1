@@ -140,6 +140,7 @@ export async function scenarioA(ctx: Ctx, browser: Browser): Promise<RunResult> 
       forcedReflows: summary.forcedReflows,
       forcedReflowMs: summary.forcedReflowMs,
       scrollBlockingMs: scrollLoafs.reduce((s, l) => s + l.blocking, 0),
+      scrollScriptMs: summary.windows.scroll.scriptMs,
       idleLayoutsPerSec: summary.windows.idle.layouts / Math.max(0.001, summary.windows.idle.ms / 1000),
       layoutMs: summary.layoutMs,
       htmlKB: b.html / KB,

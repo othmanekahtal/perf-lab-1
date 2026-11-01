@@ -10,10 +10,9 @@ type Run = { meta: { git: { commit: string; branch: string }; date: string }; me
 
 /** Documented safety margins. "worse" means larger for lower-is-better metrics, smaller for higher-is-better. */
 export const MARGINS: Record<string, { describe: string; apply: (ref: number, def: MetricDef) => number }> = {
-  timing: { describe: 'timing: ×1.5 of the reference, plus an absolute allowance (100 ms; 0.05 CLS; 1 long task; 2 layouts/s); throughput: ÷1.5', apply: (ref, def) => {
+  timing: { describe: 'timing: ×1.5 of the reference plus an allowance of twice the metric\'s noise floor (e.g. +100 ms for TTFB, +50 ms for INP, +0.05 for CLS); counts: ×1.5 + 1; throughput: ÷1.5', apply: (ref, def) => {
     if (def.better === 'higher') return ref / 1.5;
-    const abs = def.unit === 'ms' ? 100 : def.unit === 'count' ? 1 : def.unit === '' && def.floor === 0.01 ? 0.05 : def.unit === '' ? 2 : 0;
-    return ref * 1.5 + abs;
+    return ref * 1.5 + (def.unit === 'count' ? def.floor : 2 * def.floor);
   } },
   bytes: { describe: 'bytes: +10% of the reference + 5 KB', apply: (ref) => ref * 1.1 + 5 },
   count: { describe: 'counts (upstream calls, requests): reference + 1', apply: (ref, def) => (def.better === 'higher' ? Math.max(0, ref - 1) : ref + 1) },

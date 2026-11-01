@@ -1,9 +1,9 @@
-// pnpm validate [-- --symptom S4] [--quick] [--deterministic] [--runs n] [--skip-build] [--skip-e2e]
+// pnpm validate [-- --symptom S4] [--quick] [--deterministic] [--runs n] [--skip-build] [--skip-e2e] [--from perf-results/x.json]
 // Answers: "is this symptom fixed, and did I break anything?"
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { collect, gitInfo, type ScenarioId } from '../perf/lib/collect.ts';
+import { collect, gitInfo, type Collected, type ScenarioId } from '../perf/lib/collect.ts';
 import { format, METRICS } from '../perf/lib/metrics.ts';
 import { judge, loadHistory, VALIDATION_DIR } from '../perf/lib/report.ts';
 import { ROOT } from '../perf/lib/services.ts';
@@ -38,12 +38,14 @@ if (deterministic) selected = selected.filter((c) => c.kind === 'deterministic')
 const scenarios = new Set<ScenarioId>(['F', 'G']);
 for (const c of selected) if (c.scenario !== 'build') scenarios.add(c.scenario);
 
-console.log(`Perf Lab validator · mode: ${mode} · ${runs} run(s) · scenarios ${[...scenarios].sort().join('')}`);
-const result = await collect({ runs, scenarios: [...scenarios], build: !flag('skip-build') });
+// --from re-evaluates the checks against a saved `pnpm perf` result instead of measuring (no e2e gate).
+const from = value('from');
+console.log(`Perf Lab validator · mode: ${mode} · ${from ? `from ${from}` : `${runs} run(s) · scenarios ${[...scenarios].sort().join('')}`}`);
+const result: Collected = from ? (JSON.parse(readFileSync(from, 'utf8')) as Collected) : await collect({ runs, scenarios: [...scenarios], build: !flag('skip-build') });
 
 // ---------- e2e gate ----------
 let e2ePass: boolean | null = null;
-if (!flag('skip-e2e')) {
+if (!flag('skip-e2e') && !from) {
   console.log('\nRunning functional tests (pnpm test:e2e)…');
   const r = spawnSync('node', ['scripts/e2e.ts', '--reporter=dot'], { cwd: ROOT, env: { ...process.env, E2E_SKIP_BUILD: '1' }, encoding: 'utf8' });
   e2ePass = r.status === 0;
@@ -111,6 +113,6 @@ for (const g of failedGates) console.log(`❌ ${g.title}${g.note ? `\n   ${g.not
 mkdirSync(VALIDATION_DIR, { recursive: true });
 const file = join(VALIDATION_DIR, `${result.meta.date.slice(0, 19).replace(/[:T]/g, '-')}.json`);
 const git = gitInfo();
-writeFileSync(file, JSON.stringify({ date: result.meta.date, commit: git.commit + (git.dirty ? '+dirty' : ''), branch: git.branch, mode: mode === 'full' ? 'full' : mode, runs, score, passed, total: outcomes.length, outcomes, environment: result.meta.environment, renderModes: result.renderModes }, null, 1));
-console.log(`\nSaved ${file.replace(ROOT, '')}`);
+if (!from) writeFileSync(file, JSON.stringify({ date: result.meta.date, commit: git.commit + (git.dirty ? '+dirty' : ''), branch: git.branch, mode: mode === 'full' ? 'full' : mode, runs, score, passed, total: outcomes.length, outcomes, environment: result.meta.environment, renderModes: result.renderModes }, null, 1));
+if (!from) console.log(`\nSaved ${file.replace(ROOT, '')}`);
 process.exit(outcomes.every((o) => o.pass) ? 0 : 1);

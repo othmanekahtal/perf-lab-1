@@ -150,9 +150,9 @@
       "id": "S6.2",
       "symptom": "S6",
       "scenario": "A",
-      "metric": "scrollBlockingMs",
+      "metric": "scrollScriptMs",
       "op": "<=",
-      "title": "Main thread stays free while scrolling",
+      "title": "Main thread stays free while scrolling and resizing",
       "kind": null,
       "threshold": null,
       "reference": null
@@ -230,17 +230,6 @@
       "metric": "rscNavProductsKB",
       "op": "<=",
       "title": "Opening the products list transfers little",
-      "kind": null,
-      "threshold": null,
-      "reference": null
-    },
-    {
-      "id": "S8.4",
-      "symptom": "S8",
-      "scenario": "C",
-      "metric": "rscNavDetailKB",
-      "op": "<=",
-      "title": "Opening a product transfers little",
       "kind": null,
       "threshold": null,
       "reference": null

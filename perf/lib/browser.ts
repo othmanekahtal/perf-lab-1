@@ -10,7 +10,7 @@ export const EMULATION = {
   deviceScaleFactor: 1.75,
   isMobile: true,
   hasTouch: true,
-  userAgent: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36',
+  userAgent: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Mobile Safari/537.36',
   cpuSlowdown: 4,
   // Chrome DevTools "Fast 4G" preset (front_end/core/sdk/NetworkManager.ts): 9 Mbps ×0.9 down, 1.5 Mbps ×0.9 up, 60 ms × 2.75 RTT.
   network: { name: 'Fast 4G (DevTools preset)', latency: 165, downloadThroughput: (9_000_000 / 8) * 0.9, uploadThroughput: (1_500_000 / 8) * 0.9 },
