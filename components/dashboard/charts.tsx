@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { Campaign, Forecast, Order } from '@/lib/types';
-import { useEqualHeights } from './use-equal-heights';
 import { Icon } from '@/components/icon';
 
 const PALETTE = ['#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#64748b'];
@@ -20,7 +19,6 @@ export function DashboardCharts({ orders, forecast, campaigns }: { orders: Order
     // PERF-BUG #13: listener never removed, its closure keeps `orders` (8,400 rows) alive after every visit. Affects S9.
     window.addEventListener('resize', onResize);
   }, [orders]);
-  useEqualHeights('.kpi-card, .chart-card');
 
   const revenue = useMemo(() => {
     const byDay = new Map<string, number>();
