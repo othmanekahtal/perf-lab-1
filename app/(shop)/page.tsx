@@ -1,38 +1,43 @@
 import type { Metadata } from 'next';
-import { ActivityFeed } from '@/components/dashboard/activity-feed';
-import { DashboardCharts } from '@/components/dashboard/charts';
-import { KpiGrid } from '@/components/dashboard/kpi-grid';
+import { Suspense } from 'react';
 import { LiveVisitors } from '@/components/dashboard/live-visitors';
-import { RecentOrders } from '@/components/dashboard/recent-orders';
-import { Recommended } from '@/components/dashboard/recommended';
-import { getDashboardData } from '@/lib/dashboard';
+import { ActivitySection, ChartsSection, Greeting, KpiSection, RecentOrdersSection, RecommendedSection } from '@/components/dashboard/sections';
+import { ActivitySkeleton, ChartsSkeleton, GreetingSkeleton, KpiSkeleton, RecentOrdersSkeleton, RecommendedSkeleton } from '@/components/dashboard/skeletons';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
-export default async function DashboardPage() {
-  // PERF-BUG #4: no Suspense boundaries / loading.tsx, so the page renders only after every widget's data is ready. Affects S2, S3, S8.
-  const data = await getDashboardData();
-  const hour = 9;
+// Each section loads its own data and streams in independently; skeletons keep the layout stable.
+export default function DashboardPage() {
   return (
     <div className="space-y-6" data-testid="dashboard">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" data-testid="greeting">
-            {hour < 12 ? 'Good morning' : 'Hello'}, {data.user.name.split(' ')[0]}
-          </h1>
+          <Suspense fallback={<GreetingSkeleton />}>
+            <Greeting />
+          </Suspense>
           <p className="muted text-sm">Here is what happened in your store over the last 30 days.</p>
         </div>
         <LiveVisitors />
       </div>
-      <KpiGrid kpis={data.kpis} />
-      <DashboardCharts orders={data.orders} forecast={data.forecast} campaigns={data.campaigns} />
+      <Suspense fallback={<KpiSkeleton />}>
+        <KpiSection />
+      </Suspense>
+      <Suspense fallback={<ChartsSkeleton />}>
+        <ChartsSection />
+      </Suspense>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
-          <RecentOrders orders={data.recent} />
+          <Suspense fallback={<RecentOrdersSkeleton />}>
+            <RecentOrdersSection />
+          </Suspense>
         </div>
-        <Recommended products={data.recommended} user={data.user.name} />
+        <Suspense fallback={<RecommendedSkeleton />}>
+          <RecommendedSection />
+        </Suspense>
       </div>
-      <ActivityFeed items={data.activity} />
+      <Suspense fallback={<ActivitySkeleton />}>
+        <ActivitySection />
+      </Suspense>
     </div>
   );
 }
